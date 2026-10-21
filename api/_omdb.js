@@ -1,8 +1,19 @@
 // IMDb + Rotten Tomatoes ratings via OMDb (free key: https://www.omdbapi.com/apikey.aspx).
 // Needs OMDB_KEY in Vercel. If it's missing, ratings are simply left out.
+// Kept in memory while the server stays warm, so repeat lookups don't use up the 1,000/day OMDb limit.
+const cache = new Map();
+
 export async function ratingsFor(imdbId) {
   const key = process.env.OMDB_KEY;
   if (!key || !imdbId) return null;
+  const hit = cache.get(imdbId);
+  if (hit && Date.now() - hit.at < 12 * 3600e3) return hit.value;
+  const value = await fetchRatings(key, imdbId);
+  if (value) cache.set(imdbId, { at: Date.now(), value });
+  return value;
+}
+
+async function fetchRatings(key, imdbId) {
   try {
     const r = await fetch(`https://www.omdbapi.com/?apikey=${key}&i=${imdbId}`);
     if (!r.ok) return null;

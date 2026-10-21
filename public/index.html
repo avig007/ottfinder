@@ -2,133 +2,228 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>WatchWhere India</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OTT Finder</title>
+<meta name="description" content="Find which OTT apps in India have a movie or series">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="WatchWhere">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#14121a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="OTT Finder">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f6f4f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14121a" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon.svg">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: one column, search pinned at top, results as a stacked list, title detail as a sheet. */
+/* Layout: one phone column. Sticky search on top; home shows filters + ranked list; a title opens in place. */
+/* Type matches CutTrack: Bricolage Grotesque for headings and numbers, Figtree for everything else. */
 :root{
-  --bg:#f6f4f9; --surface:#ffffff; --fg:#1b1724; --muted:#6c6678; --line:#e4e0ec;
-  --accent:#ff5a36; --accent-ink:#ffffff; --ok:#13865a; --no:#c2342b;
-  --imdb:#a87600; --fresh:#d22f1e; --rotten:#4f8a2a;
-  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
-  --body:"Figtree",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --bg:#f6f4f9; --surface:#ffffff; --surface-2:#ece8f2; --fg:#1b1724; --muted:#6c6678; --line:#e1dcea;
+  --accent:#e8492a; --accent-ink:#ffffff; --ok:#13865a; --no:#c2342b;
+  --imdb:#9a6c00; --fresh:#d22f1e; --rotten:#4f8a2a;
+  --display:"Bricolage Grotesque", ui-rounded, system-ui, sans-serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:16px;
 }
-@media (prefers-color-scheme:dark){:root{
-  --bg:#14121a; --surface:#1e1b27; --fg:#f1eef7; --muted:#a29cb0; --line:#2e2a3a;
-  --accent:#ff6d4d; --ok:#3ccf8e; --no:#ff7a70;
-  --imdb:#f5c518; --fresh:#ff6a55; --rotten:#8fd35c; color-scheme:dark }}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14121a; --surface:#1e1b27; --surface-2:#282434; --fg:#f1eef7; --muted:#a29cb0; --line:#2f2a3b;
+  --accent:#ff6d4d; --accent-ink:#1a0703; --ok:#3ccf8e; --no:#ff7a70;
+  --imdb:#f5c518; --fresh:#ff6a55; --rotten:#8fd35c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14121a; --surface:#1e1b27; --surface-2:#282434; --fg:#f1eef7; --muted:#a29cb0; --line:#2f2a3b;
+  --accent:#ff6d4d; --accent-ink:#1a0703; --ok:#3ccf8e; --no:#ff7a70;
+  --imdb:#f5c518; --fresh:#ff6a55; --rotten:#8fd35c; color-scheme:dark}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--body);
-  padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
-.wrap{max-width:620px;margin:0 auto}
-header{padding-block:20px 12px}
-h1{font:800 clamp(28px,7vw,40px)/1 var(--display);margin:0;letter-spacing:-.02em}
-h1 span{color:var(--accent)}
-.sub{color:var(--muted);margin:6px 0 0;font-size:15px}
-form{position:sticky;top:env(safe-area-inset-top);z-index:5;background:var(--bg);padding-block:10px;display:flex;gap:8px}
-input{flex:1;min-width:0;font:500 17px var(--body);padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);outline:none}
-input:focus{border-color:var(--accent)}
-button{font:600 16px var(--body);border:0;border-radius:14px;padding:0 18px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
-button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.status{color:var(--muted);padding:18px 2px}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.wrap{max-width:560px;margin:0 auto}
+.label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+
+header.top{padding-block:16px 4px}
+header.top h1{font-size:1.5rem;font-weight:700;cursor:pointer;display:inline-block}
+header.top h1 span{color:var(--accent)}
+.sub{color:var(--muted);font-size:.9rem;margin:2px 0 0}
+
+form.search{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;gap:8px}
+.search input{flex:1;min-width:0;font-size:1rem;font-weight:500;padding:13px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);outline:none}
+.search input:focus{border-color:var(--accent)}
+.btn{border:0;border-radius:14px;padding:0 18px;background:var(--accent);color:var(--accent-ink);font-weight:600}
+.status{color:var(--muted);padding:16px 2px;margin:0}
+
+/* search results + title */
 .list{display:grid;gap:10px;margin-top:6px}
-.hit{display:grid;grid-template-columns:56px 1fr;gap:12px;align-items:center;text-align:left;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:14px;padding:8px;width:100%}
-.hit img,.ph{width:56px;height:84px;border-radius:8px;object-fit:cover;background:var(--line)}
-.hit b{display:block;font:600 16px var(--body)}
-.tag{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.detail{margin-top:8px}
-.top{display:grid;grid-template-columns:110px 1fr;gap:16px;align-items:start}
-.top img{width:110px;border-radius:12px}
-.top h2{font:800 26px/1.1 var(--display);margin:0 0 6px;text-wrap:balance}
-.verdict{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px;margin-top:10px}
-.verdict.yes{color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
-.verdict.no{color:var(--no);background:color-mix(in srgb,var(--no) 12%,transparent)}
-.ov{color:var(--muted);font-size:15px;margin:14px 0 0}
-section h3{font:600 13px var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:22px 0 10px}
+.hit{display:grid;grid-template-columns:56px 1fr;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px;width:100%}
+.hit img,.ph{width:56px;height:84px;border-radius:8px;object-fit:cover;background:var(--surface-2)}
+.hit b{display:block;font-weight:600}
+.tag{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.backs{display:flex;gap:16px}
+.back{background:none;border:0;color:var(--accent);padding:6px 0;font-weight:600;font-size:.95rem}
+.top2{display:grid;grid-template-columns:110px 1fr;gap:16px;align-items:start;margin-top:6px}
+.top2 img,.top2 .ph{width:110px;height:165px;border-radius:12px}
+.top2 h2{font-size:1.6rem;font-weight:700;line-height:1.1;margin-bottom:6px}
+.verdict{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.85rem;padding:6px 12px;border-radius:999px;margin-top:10px}
+.verdict.yes{color:var(--ok);background:color-mix(in srgb,var(--ok) 13%,transparent)}
+.verdict.no{color:var(--no);background:color-mix(in srgb,var(--no) 13%,transparent)}
+.ov{color:var(--muted);font-size:.95rem;margin:14px 0 0}
+section h3{font-family:var(--body);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:22px 0 10px}
 .apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.app{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;background:var(--surface);border:1px solid var(--line);color:var(--fg);text-decoration:none;font-weight:600;font-size:15px;min-width:0}
+.app{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;background:var(--surface);border:1px solid var(--line);color:var(--fg);text-decoration:none;font-weight:600;font-size:.95rem;min-width:0}
 .app img{width:36px;height:36px;border-radius:9px;flex:none}
 .app span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:14px;font-size:15px}
-.else li{margin-bottom:4px}
-.back{background:none;color:var(--accent);padding:6px 0;font-size:15px}
-.ratings{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.rate{display:inline-flex;align-items:baseline;gap:5px;font-size:13px;font-weight:600;padding:4px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line);color:var(--fg);text-decoration:none;font-variant-numeric:tabular-nums}
-.rate i{font-style:normal;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:14px;font-size:.95rem}
+
+/* rating badges */
+.ratings{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.rate{display:inline-flex;align-items:baseline;gap:5px;font-size:.8rem;font-weight:600;padding:3px 9px;border-radius:8px;background:var(--surface-2);color:var(--fg);text-decoration:none}
+.rate i{font-style:normal;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.rate b{font-family:var(--display);font-size:.95rem;font-variant-numeric:tabular-nums}
 .rate.imdb b{color:var(--imdb)}
 .rate.rt b{color:var(--fresh)}
 .rate.rt.rotten b{color:var(--rotten)}
-.homehead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:22px 0 4px}
-.homehead h2{font:800 22px/1.1 var(--display);margin:0}
-.homehead span{color:var(--muted);font-size:13px}
-.tabs{display:flex;gap:6px;margin:10px 0 12px}
-.tabs button{background:var(--surface);color:var(--fg);border:1px solid var(--line);padding:8px 14px;font-size:14px;border-radius:999px}
-.tabs button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
-.recs{display:grid;gap:10px}
-.rec{display:grid;grid-template-columns:28px 64px 1fr;gap:12px;align-items:center;text-align:left;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:14px;padding:8px 12px 8px 8px;width:100%}
-.rec .n{font:800 20px var(--display);color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
-.rec img,.rec .ph{width:64px;height:96px;border-radius:8px;object-fit:cover;background:var(--line)}
-.rec b{display:block;font:600 16px/1.3 var(--body)}
-.rec .ratings{margin-top:6px}
-.rec .on{display:block;font-size:13px;color:var(--muted);margin-top:6px}
-.foot{color:var(--muted);font-size:12px;margin-top:28px}
+
+/* home */
+.homehead{margin:18px 0 10px}
+.homehead h2{font-size:1.35rem;font-weight:700}
+.homehead p{margin:2px 0 0;color:var(--muted);font-size:.85rem}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:7px 16px;border-radius:999px;font-weight:600;font-size:.9rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgb(0 0 0 / .12)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.fbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:600;font-size:.9rem;display:inline-flex;gap:6px;align-items:center}
+.fbtn .count{background:var(--accent);color:var(--accent-ink);border-radius:999px;font-size:.72rem;min-width:20px;padding:1px 6px;text-align:center}
+.filters{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0;position:relative}
+.field.full{grid-column:1 / -1}
+.field select,.field input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:.95rem;min-width:0}
+.sugg{position:absolute;top:100%;left:0;right:0;z-index:6;margin-top:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgb(0 0 0 / .14);overflow:hidden}
+.sugg button{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:8px 10px}
+.sugg button:hover,.sugg button:focus-visible{background:var(--surface-2)}
+.sugg img,.sugg .ph{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.sugg small{display:block;color:var(--muted);font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.person{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border-radius:10px;background:var(--surface-2);font-weight:600;font-size:.95rem}
+.person button{border:0;background:none;color:var(--muted);font-size:1.1rem;line-height:1;padding:0 2px}
+.factions{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center}
+.link{border:0;background:none;color:var(--accent);font-weight:600;padding:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--surface-2);border-radius:999px;padding:5px 10px;font-size:.82rem;font-weight:600}
+.chip span{color:var(--muted)}
+.recs{display:grid;gap:10px;margin-top:12px}
+.rec{display:grid;grid-template-columns:26px 64px 1fr;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px 12px 8px 8px;width:100%}
+.rec .n{font-family:var(--display);font-weight:800;font-size:1.2rem;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.rec img,.rec .ph{width:64px;height:96px;border-radius:8px;object-fit:cover;background:var(--surface-2)}
+.rec b{display:block;font-weight:600;line-height:1.3}
+.rec .on{display:block;font-size:.8rem;color:var(--muted);margin-top:6px}
+.loading .recs{opacity:.45;transition:opacity .2s}
+.foot{color:var(--muted);font-size:.75rem;margin-top:28px}
 .foot a{color:inherit}
+@media (max-width:360px){.filters{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>Watch<span>Where</span></h1>
-    <p class="sub">Type a movie or series. See which Indian OTT apps have it.</p>
+  <header class="top">
+    <h1 id="logo">OTT <span>Finder</span></h1>
+    <p class="sub">See which apps in India have any movie or series.</p>
   </header>
 
-  <form id="f" autocomplete="off">
-    <input id="q" type="search" placeholder="e.g. Disclosure Day" aria-label="Movie or series name" enterkeyhint="search">
-    <button type="submit">Find</button>
+  <form class="search" id="f" autocomplete="off">
+    <input id="q" type="search" placeholder="Search a movie or series" aria-label="Movie or series name" enterkeyhint="search">
+    <button class="btn" type="submit">Find</button>
   </form>
 
   <div id="out"></div>
 
   <div id="home">
-    <div class="homehead"><h2>New &amp; top rated</h2><span>Released in the last 6 months</span></div>
-    <div class="tabs" role="group" aria-label="Show">
-      <button id="tab-movie" aria-pressed="true">Movies</button>
-      <button id="tab-tv" aria-pressed="false">Series</button>
+    <div class="homehead">
+      <h2 id="home-title">New &amp; top rated</h2>
+      <p id="home-sub">Released in the last 6 months, ranked by IMDb and Rotten Tomatoes</p>
     </div>
-    <div id="recs"><p class="status">Loading this week's picks…</p></div>
+    <div class="bar">
+      <div class="seg" role="group" aria-label="Show">
+        <button id="tab-movie" aria-pressed="true">Movies</button>
+        <button id="tab-tv" aria-pressed="false">Series</button>
+      </div>
+      <button class="fbtn" id="fbtn" aria-expanded="false" aria-controls="filters">Filters <span class="count" id="fcount" hidden>0</span></button>
+    </div>
+
+    <div class="filters" id="filters" hidden>
+      <label class="field"><span class="label">Genre</span><select id="f-genre"></select></label>
+      <label class="field"><span class="label">Released</span>
+        <select id="f-since">
+          <option value="6m">Last 6 months</option>
+          <option value="1y">Last year</option>
+          <option value="5y">Last 5 years</option>
+          <option value="all">Any time</option>
+        </select></label>
+      <label class="field"><span class="label">IMDb</span>
+        <select id="f-imdb">
+          <option value="0">Any rating</option>
+          <option value="6">6.0 and up</option>
+          <option value="7">7.0 and up</option>
+          <option value="7.5">7.5 and up</option>
+          <option value="8">8.0 and up</option>
+          <option value="8.5">8.5 and up</option>
+        </select></label>
+      <label class="field"><span class="label">Rotten Tomatoes</span>
+        <select id="f-rt">
+          <option value="0">Any score</option>
+          <option value="60">60% and up (Fresh)</option>
+          <option value="75">75% and up</option>
+          <option value="90">90% and up</option>
+        </select></label>
+      <div class="field full" data-role="actor">
+        <span class="label">Actor</span>
+        <input id="f-actor" type="search" placeholder="e.g. Pankaj Tripathi" autocomplete="off">
+        <div class="person" hidden></div>
+        <div class="sugg" hidden></div>
+      </div>
+      <div class="field full" data-role="director">
+        <span class="label">Director</span>
+        <input id="f-director" type="search" placeholder="e.g. Christopher Nolan" autocomplete="off">
+        <div class="person" hidden></div>
+        <div class="sugg" hidden></div>
+      </div>
+      <div class="factions">
+        <button class="link" id="f-clear" type="button">Clear all</button>
+        <button class="btn" id="f-done" type="button" style="padding:9px 18px">Done</button>
+      </div>
+    </div>
+    <div class="chips" id="chips"></div>
+
+    <div id="recs"><p class="status">Loading top picks…</p></div>
   </div>
 
   <p class="foot">Availability from <a href="https://www.justwatch.com/in" target="_blank" rel="noopener">JustWatch</a> via TMDB. Ratings from IMDb and Rotten Tomatoes via OMDb. Catalogues change often; check the app before you pay.</p>
 </div>
 
 <script>
-const out = document.getElementById("out");
-const home = document.getElementById("home");
-const q = document.getElementById("q");
+const $ = (id) => document.getElementById(id);
+const out = $("out"), home = $("home"), q = $("q");
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const status = (t) => (out.innerHTML = `<p class="status">${esc(t)}</p>`);
 let lastResults = [];
-let recData = null;
-let recTab = "movie";
 
-function showHome() {
-  out.innerHTML = "";
-  home.hidden = false;
-  lastResults = [];
-  q.value = "";
-  window.scrollTo({ top: 0, behavior: "smooth" });
+async function api(path) {
+  const r = await fetch(path);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || "Something went wrong. Try again.");
+  return j;
 }
-document.querySelector("h1").style.cursor = "pointer";
-document.querySelector("h1").addEventListener("click", showHome);
 
-// Rating badges: IMDb out of 10, Rotten Tomatoes % (fresh at 60+).
 function ratingBadges(r) {
   if (!r || (r.imdb == null && r.rt == null)) return "";
   const imdb = r.imdb != null
@@ -138,11 +233,101 @@ function ratingBadges(r) {
   return `<div class="ratings">${imdb}${rt}</div>`;
 }
 
-function renderRecs() {
-  const box = document.getElementById("recs");
-  if (!recData) return;
-  const list = recTab === "movie" ? recData.movies : recData.series;
-  if (!list.length) { box.innerHTML = `<p class="status">No picks found right now. Try again later.</p>`; return; }
+/* ---------- Home: filters + ranked list ---------- */
+const GENRES = {
+  movie: [[28,"Action"],[12,"Adventure"],[16,"Animation"],[35,"Comedy"],[80,"Crime"],[99,"Documentary"],[18,"Drama"],[10751,"Family"],[14,"Fantasy"],[36,"History"],[27,"Horror"],[10402,"Music"],[9648,"Mystery"],[10749,"Romance"],[878,"Science Fiction"],[53,"Thriller"],[10752,"War"]],
+  tv: [[10759,"Action & Adventure"],[16,"Animation"],[35,"Comedy"],[80,"Crime"],[99,"Documentary"],[18,"Drama"],[10751,"Family"],[10762,"Kids"],[9648,"Mystery"],[10764,"Reality"],[10765,"Sci-Fi & Fantasy"],[10768,"War & Politics"]],
+};
+const SINCE = { "6m": "Last 6 months", "1y": "Last year", "5y": "Last 5 years", all: "Any time" };
+const DEFAULT = { type: "movie", genre: "", since: "6m", imdb: "0", rt: "0", actor: null, director: null };
+let F = { ...DEFAULT };
+try { Object.assign(F, JSON.parse(localStorage.getItem("ottfinder.filters") || "{}")); } catch {}
+const save = () => { try { localStorage.setItem("ottfinder.filters", JSON.stringify(F)); } catch {} };
+
+function fillGenres() {
+  const sel = $("f-genre");
+  const list = GENRES[F.type];
+  if (F.genre && !list.some(([id]) => String(id) === String(F.genre))) F.genre = "";
+  sel.innerHTML = `<option value="">All genres</option>` + list.map(([id, n]) => `<option value="${id}">${n}</option>`).join("");
+  sel.value = F.genre;
+}
+
+function syncForm() {
+  $("tab-movie").setAttribute("aria-pressed", F.type === "movie");
+  $("tab-tv").setAttribute("aria-pressed", F.type === "tv");
+  fillGenres();
+  $("f-since").value = F.since;
+  $("f-imdb").value = F.imdb;
+  $("f-rt").value = F.rt;
+  for (const role of ["actor", "director"]) {
+    const box = document.querySelector(`[data-role="${role}"]`);
+    const p = F[role];
+    box.querySelector("input").hidden = !!p;
+    const chip = box.querySelector(".person");
+    chip.hidden = !p;
+    chip.innerHTML = p ? `<span>${esc(p.name)}</span><button type="button" aria-label="Remove ${esc(p.name)}">×</button>` : "";
+    if (p) chip.querySelector("button").onclick = () => { F[role] = null; changed(); };
+  }
+}
+
+function activeChips() {
+  const c = [];
+  const g = GENRES[F.type].find(([id]) => String(id) === String(F.genre));
+  if (g) c.push(["genre", g[1]]);
+  if (F.since !== "6m") c.push(["since", SINCE[F.since]]);
+  if (+F.imdb) c.push(["imdb", `IMDb ${F.imdb}+`]);
+  if (+F.rt) c.push(["rt", `RT ${F.rt}%+`]);
+  if (F.actor) c.push(["actor", F.actor.name]);
+  if (F.director) c.push(["director", `Dir. ${F.director.name}`]);
+  return c;
+}
+
+function renderChrome() {
+  const chips = activeChips();
+  $("fcount").hidden = !chips.length;
+  $("fcount").textContent = chips.length;
+  $("chips").innerHTML = $("filters").hidden ? chips.map(([k, t]) =>
+    `<button class="chip" data-k="${k}" aria-label="Remove filter ${esc(t)}">${esc(t)} <span>×</span></button>`).join("") : "";
+  $("chips").querySelectorAll(".chip").forEach((b) => b.onclick = () => {
+    const k = b.dataset.k;
+    F[k] = k === "actor" || k === "director" ? null : DEFAULT[k];
+    changed();
+  });
+  const kind = F.type === "tv" ? "series" : "movies";
+  const who = [F.actor && `with ${F.actor.name}`, F.director && `directed by ${F.director.name}`].filter(Boolean).join(", ");
+  $("home-title").textContent = who ? `Best ${kind} ${who}` : F.since === "6m" ? "New & top rated" : `Top rated ${kind}`;
+  $("home-sub").textContent = `${SINCE[F.since]} · ranked by IMDb and Rotten Tomatoes`;
+}
+
+let reqId = 0;
+async function loadRecs() {
+  const id = ++reqId;
+  const p = new URLSearchParams({ type: F.type, since: F.since });
+  if (F.genre) p.set("genre", F.genre);
+  if (+F.imdb) p.set("imdb", F.imdb);
+  if (+F.rt) p.set("rt", F.rt);
+  if (F.actor) p.set("actor", F.actor.id);
+  if (F.director) p.set("director", F.director.id);
+  home.classList.add("loading");
+  if (!$("recs").querySelector(".recs")) $("recs").innerHTML = `<p class="status">Loading top picks…</p>`;
+  try {
+    const j = await api(`/api/recommend?${p}`);
+    if (id !== reqId) return;
+    renderRecs(j.results);
+  } catch (e) {
+    if (id !== reqId) return;
+    $("recs").innerHTML = `<p class="status">Couldn't load picks (${esc(e.message)}). Search still works.</p>`;
+  } finally {
+    if (id === reqId) home.classList.remove("loading");
+  }
+}
+
+function renderRecs(list) {
+  const box = $("recs");
+  if (!list.length) {
+    box.innerHTML = `<p class="status">Nothing matches these filters. Try a lower rating, a longer time range, or fewer filters.</p>`;
+    return;
+  }
   box.innerHTML = `<div class="recs">${list.map((r, i) => `
     <button class="rec" data-i="${i}">
       <span class="n">${i + 1}</span>
@@ -150,48 +335,73 @@ function renderRecs() {
       <div>
         <b>${esc(r.title)}</b><span class="tag">${r.type === "tv" ? "Series" : "Movie"}${r.year ? " · " + r.year : ""}</span>
         ${ratingBadges(r.ratings)}
-        <span class="on">${r.streamOn.length ? "On " + esc(r.streamOn.join(", ")) : "Not streaming in India yet"}</span>
+        <span class="on">${r.streamOn.length ? "On " + esc(r.streamOn.join(", ")) : "Not streaming in India"}</span>
       </div>
     </button>`).join("")}</div>`;
-  box.querySelectorAll(".rec").forEach((b) => b.addEventListener("click", () => {
-    lastResults = [];
-    openTitle(list[b.dataset.i]);
-  }));
+  box.querySelectorAll(".rec").forEach((b) => b.addEventListener("click", () => { lastResults = []; openTitle(list[b.dataset.i]); }));
 }
 
-for (const t of ["movie", "tv"]) {
-  document.getElementById("tab-" + t).addEventListener("click", () => {
-    recTab = t;
-    document.getElementById("tab-movie").setAttribute("aria-pressed", t === "movie");
-    document.getElementById("tab-tv").setAttribute("aria-pressed", t === "tv");
-    renderRecs();
-  });
-}
+function changed() { save(); syncForm(); renderChrome(); loadRecs(); }
 
-fetch("/api/recommend").then((r) => r.json()).then((j) => {
-  if (j.error) throw new Error(j.error);
-  recData = j;
-  renderRecs();
-}).catch(() => {
-  document.getElementById("recs").innerHTML = `<p class="status">Couldn't load picks. Search still works.</p>`;
+for (const t of ["movie", "tv"]) $("tab-" + t).addEventListener("click", () => { F.type = t; changed(); });
+$("f-genre").addEventListener("change", (e) => { F.genre = e.target.value; changed(); });
+$("f-since").addEventListener("change", (e) => { F.since = e.target.value; changed(); });
+$("f-imdb").addEventListener("change", (e) => { F.imdb = e.target.value; changed(); });
+$("f-rt").addEventListener("change", (e) => { F.rt = e.target.value; changed(); });
+$("fbtn").addEventListener("click", () => {
+  const open = $("filters").hidden;
+  $("filters").hidden = !open;
+  $("fbtn").setAttribute("aria-expanded", open);
+  renderChrome();
 });
+$("f-done").addEventListener("click", () => $("fbtn").click());
+$("f-clear").addEventListener("click", () => { F = { ...DEFAULT, type: F.type }; changed(); });
 
-const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
-const status = (t) => (out.innerHTML = `<p class="status">${esc(t)}</p>`);
-
-async function api(path) {
-  const r = await fetch(path);
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j.error || "Something went wrong. Try again.");
-  return j;
+// Actor / director pickers with suggestions as you type.
+for (const role of ["actor", "director"]) {
+  const box = document.querySelector(`[data-role="${role}"]`);
+  const input = box.querySelector("input"), sugg = box.querySelector(".sugg");
+  let t, seq = 0;
+  input.addEventListener("input", () => {
+    clearTimeout(t);
+    const term = input.value.trim();
+    if (term.length < 2) { sugg.hidden = true; return; }
+    t = setTimeout(async () => {
+      const n = ++seq;
+      try {
+        const { results } = await api(`/api/people?role=${role}&q=${encodeURIComponent(term)}`);
+        if (n !== seq) return;
+        sugg.innerHTML = results.length ? results.map((p, i) => `
+          <button type="button" data-i="${i}">
+            ${p.photo ? `<img src="${p.photo}" alt="">` : `<div class="ph"></div>`}
+            <span><b>${esc(p.name)}</b><small>${esc([p.dept, p.knownFor].filter(Boolean).join(" · "))}</small></span>
+          </button>`).join("") : `<p class="status" style="padding:10px 12px">No one found.</p>`;
+        sugg.hidden = false;
+        sugg.querySelectorAll("button").forEach((b) => b.onclick = () => {
+          const p = results[b.dataset.i];
+          F[role] = { id: p.id, name: p.name };
+          if (F.since === "6m") F.since = "all"; // a person's best work is rarely from the last 6 months
+          input.value = ""; sugg.hidden = true;
+          changed();
+        });
+      } catch { sugg.hidden = true; }
+    }, 250);
+  });
+  input.addEventListener("blur", () => setTimeout(() => (sugg.hidden = true), 200));
 }
 
-document.getElementById("f").addEventListener("submit", async (e) => {
+/* ---------- Search + title ---------- */
+function showHome() {
+  out.innerHTML = ""; home.hidden = false; lastResults = []; q.value = "";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+$("logo").addEventListener("click", showHome);
+
+$("f").addEventListener("submit", async (e) => {
   e.preventDefault();
   const term = q.value.trim();
   if (!term) return;
-  q.blur();
-  home.hidden = true;
+  q.blur(); home.hidden = true;
   status("Searching…");
   try {
     const { results } = await api(`/api/search?q=${encodeURIComponent(term)}`);
@@ -203,11 +413,13 @@ document.getElementById("f").addEventListener("submit", async (e) => {
 });
 
 function renderList() {
-  out.innerHTML = `<p class="status" style="padding-bottom:4px">Pick the right one:</p><div class="list">${lastResults.map((r, i) => `
+  out.innerHTML = `<div class="backs"><button class="back" id="home-btn">← Home</button></div>
+    <p class="status" style="padding:4px 2px">Pick the right one:</p><div class="list">${lastResults.map((r, i) => `
     <button class="hit" data-i="${i}">
       ${r.poster ? `<img src="${r.poster}" alt="" loading="lazy">` : `<div class="ph"></div>`}
       <div><b>${esc(r.title)}</b><span class="tag">${r.type === "tv" ? "Series" : "Movie"}${r.year ? " · " + r.year : ""}</span></div>
     </button>`).join("")}</div>`;
+  $("home-btn").onclick = showHome;
   out.querySelectorAll(".hit").forEach((b) => b.addEventListener("click", () => openTitle(lastResults[b.dataset.i])));
 }
 
@@ -219,43 +431,40 @@ const appCards = (list) => `<div class="apps">${list.map((p) => `
 async function openTitle(r) {
   home.hidden = true;
   status(`Checking where to watch ${r.title}…`);
+  window.scrollTo({ top: 0, behavior: "smooth" });
   try {
     const t = await api(`/api/title?type=${r.type}&id=${r.id}`);
     const meta = [t.type === "tv" ? "Series" : "Movie", t.year,
-      t.runtime ? `${Math.floor(t.runtime/60)}h ${t.runtime%60}m` : null,
+      t.runtime ? `${Math.floor(t.runtime / 60)}h ${t.runtime % 60}m` : null,
       t.seasons ? `${t.seasons} season${t.seasons > 1 ? "s" : ""}` : null, ...t.genres].filter(Boolean).join(" · ");
-    const sections = [
-      ["Stream with subscription", t.india.stream],
-      ["Free", t.india.free],
-      ["Rent", t.india.rent],
-      ["Buy", t.india.buy],
-    ].filter(([, l]) => l.length).map(([h, l]) => `<section><h3>${h}</h3>${appCards(l)}</section>`).join("");
-
+    const sections = [["Stream with subscription", t.india.stream], ["Free", t.india.free], ["Rent", t.india.rent], ["Buy", t.india.buy]]
+      .filter(([, l]) => l.length).map(([h, l]) => `<section><h3>${h}</h3>${appCards(l)}</section>`).join("");
     const notIn = !t.availableInIndia ? `
       ${t.releaseNote ? `<div class="note">${esc(t.releaseNote)}</div>` : ""}
-      ${t.elsewhere.length ? `<section><h3>Streaming outside India</h3><ul class="else">${t.elsewhere.map((e) =>
+      ${t.elsewhere.length ? `<section><h3>Streaming outside India</h3><ul>${t.elsewhere.map((e) =>
         `<li><b>${esc(e.country)}:</b> ${esc(e.apps.join(", "))}</li>`).join("")}</ul></section>` : ""}` : "";
-
-    out.innerHTML = `<div class="detail">
-      <button class="back" id="home-btn">← Home</button>
-      ${lastResults.length > 1 ? `<button class="back" id="back" style="margin-left:16px">Other matches</button>` : ""}
-      <div class="top">
-        ${t.poster ? `<img src="${t.poster}" alt="Poster of ${esc(t.title)}">` : `<div class="ph" style="width:110px;height:165px"></div>`}
+    out.innerHTML = `
+      <div class="backs">
+        <button class="back" id="home-btn">← Home</button>
+        ${lastResults.length > 1 ? `<button class="back" id="back">Other matches</button>` : ""}
+      </div>
+      <div class="top2">
+        ${t.poster ? `<img src="${t.poster}" alt="Poster of ${esc(t.title)}">` : `<div class="ph"></div>`}
         <div>
           <h2>${esc(t.title)}</h2>
-          <span class="tag">${esc(meta)}</span><br>
+          <span class="tag">${esc(meta)}</span>
           ${ratingBadges(t.ratings)}
-          <span class="verdict ${t.availableInIndia ? "yes" : "no"}">${t.availableInIndia ? "● Available in India" : "● Not available in India"}</span>
+          <span class="verdict ${t.availableInIndia ? "yes" : "no"}">● ${t.availableInIndia ? "Available in India" : "Not available in India"}</span>
         </div>
       </div>
       ${sections}${notIn}
-      ${t.overview ? `<p class="ov">${esc(t.overview)}</p>` : ""}
-    </div>`;
-    document.getElementById("back")?.addEventListener("click", renderList);
-    document.getElementById("home-btn").addEventListener("click", showHome);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+      ${t.overview ? `<p class="ov">${esc(t.overview)}</p>` : ""}`;
+    $("home-btn").onclick = showHome;
+    $("back")?.addEventListener("click", renderList);
   } catch (err) { status(err.message); }
 }
+
+syncForm(); renderChrome(); loadRecs();
 </script>
 </body>
 </html>

@@ -1,9 +1,9 @@
-# OTT Finder (WatchWhere India)
+# OTT Finder
 
 Type a movie or series and see which OTT apps in India have it (Netflix, Prime Video, JioHotstar, Apple TV, Zee5, SonyLIV and more), split into Stream / Free / Rent / Buy, with its **IMDb** and **Rotten Tomatoes** ratings.
 
 - If it isn't on any Indian app, it says **Not available in India**, tells you if it's still in theatres or unreleased, and shows where it streams abroad.
-- The home page lists **new movies and series (last 6 months) ranked by IMDb + Rotten Tomatoes**, with the Indian app each one is on. The list refreshes every 12 hours.
+- The home page lists **top-rated movies and series ranked by IMDb + Rotten Tomatoes**, with the Indian app each one is on. Filter by genre, actor, director, release period, minimum IMDb rating and minimum Rotten Tomatoes score. Lists refresh every 12 hours.
 
 Data: TMDB watch providers (powered by JustWatch, region `IN`) and OMDb for ratings. Both are free.
 
@@ -41,5 +41,6 @@ Open the Vercel URL in Safari → Share → **Add to Home Screen**.
 - `public/index.html`: the app screen
 - `api/search.js`: finds matching movies and series
 - `api/title.js`: where to watch in India, ratings, release status, availability abroad
-- `api/recommend.js`: new and top-rated picks for the home page
+- `api/recommend.js`: top-rated picks for the home page, with filters
+- `api/people.js`: actor and director suggestions for the filters
 - `api/_tmdb.js`, `api/_omdb.js`: shared helpers (read `TMDB_TOKEN` and `OMDB_KEY`)
