@@ -1,24 +1,19 @@
 import { tmdb, send } from "./_tmdb.js";
 import { ratingsFor } from "./_omdb.js";
-
-const LOGO = (p) => (p ? `https://image.tmdb.org/t/p/w92${p}` : null);
-
-// Direct search links for the apps we know; anything else falls back to TMDB's watch page.
-function appLink(name, title, fallback) {
-  const q = encodeURIComponent(title);
-  const n = name.toLowerCase();
-  if (n.includes("netflix")) return `https://www.netflix.com/search?q=${q}`;
-  if (n.includes("amazon") || n.includes("prime video")) return `https://www.primevideo.com/search?phrase=${q}`;
-  if (n.includes("apple tv")) return `https://tv.apple.com/in/search?term=${q}`;
-  if (n.includes("youtube")) return `https://www.youtube.com/results?search_query=${q}`;
-  if (n.includes("google play")) return `https://play.google.com/store/search?q=${q}&c=movies`;
-  if (n.includes("zee5")) return `https://www.zee5.com/search?q=${q}`;
-  return fallback;
-}
+import { justwatchOffers } from "./_justwatch.js";
+import { groupByApp, verdict } from "./_apps.js";
 
 const COUNTRY = new Intl.DisplayNames(["en"], { type: "region" });
 
-// GET /api/title?type=movie|tv&id=123  -> details + where to watch in India
+// TMDB offers, used when JustWatch can't be reached. Same categories, no prices or direct links.
+function tmdbOffers(IN) {
+  const map = { flatrate: "FLATRATE", free: "FREE", ads: "ADS", rent: "RENT", buy: "BUY" };
+  return Object.entries(map).flatMap(([k, m]) =>
+    (IN[k] || []).map((p) => ({ monetization: m, name: p.provider_name, tech: "", value: null }))
+  );
+}
+
+// GET /api/title?type=movie|tv&id=123 -> details, ratings, and what it costs to watch in India
 export default async function handler(req, res) {
   const type = req.query.type === "tv" ? "tv" : "movie";
   const id = parseInt(req.query.id, 10);
@@ -29,25 +24,40 @@ export default async function handler(req, res) {
       append_to_response: type === "movie" ? "watch/providers,release_dates,external_ids" : "watch/providers,external_ids",
     });
     const title = d.title || d.name;
-    const ratings = await ratingsFor(d.imdb_id || d.external_ids?.imdb_id);
+    const rawDate = d.release_date || d.first_air_date || "";
+    const imdbId = d.imdb_id || d.external_ids?.imdb_id;
     const all = d["watch/providers"]?.results || {};
     const IN = all.IN || {};
-    const fallback = IN.link || `https://www.themoviedb.org/${type}/${id}/watch?locale=IN`;
+    const fallbackUrl = IN.link || `https://www.themoviedb.org/${type}/${id}/watch?locale=IN`;
 
-    const group = (list = []) =>
-      list
-        .sort((a, b) => (a.display_priority ?? 99) - (b.display_priority ?? 99))
-        .map((p) => ({ name: p.provider_name, logo: LOGO(p.logo_path), url: appLink(p.provider_name, title, fallback) }));
+    const [ratings, jw] = await Promise.all([
+      ratingsFor(imdbId),
+      justwatchOffers({ title, year: parseInt(rawDate) || 0, type, tmdbId: id, imdbId }).catch(() => null),
+    ]);
 
-    const india = {
-      stream: group(IN.flatrate),
-      free: group([...(IN.free || []), ...(IN.ads || [])]),
-      rent: group(IN.rent),
-      buy: group(IN.buy),
-    };
-    const availableInIndia = Object.values(india).some((g) => g.length);
+    let offers, priceSource;
+    if (jw && jw.length) {
+      offers = jw.map((o) => ({
+        monetization: o.monetizationType,
+        name: o.package?.clearName || "",
+        tech: o.package?.technicalName || "",
+        value: o.retailPriceValue ?? null,
+        currency: o.currency,
+        label: o.retailPrice,
+        quality: o.presentationType && o.presentationType !== "_4K" ? o.presentationType : o.presentationType === "_4K" ? "4K" : null,
+        url: o.standardWebURL || null,
+      }));
+      priceSource = "justwatch";
+    } else {
+      offers = tmdbOffers(IN);
+      priceSource = jw === null ? "tmdb" : "justwatch";
+    }
 
-    // When it isn't in India, show where it does stream (subscription only, a few key markets first).
+    const apps = groupByApp(offers, fallbackUrl, type === "tv");
+    const summary = verdict(apps);
+    const availableInIndia = apps.length > 0;
+
+    // Not in India: where it streams abroad.
     let elsewhere = [];
     if (!availableInIndia) {
       const priority = ["US", "GB", "CA", "AU", "AE", "SG"];
@@ -58,15 +68,13 @@ export default async function handler(req, res) {
         .map(([cc, v]) => ({ country: COUNTRY.of(cc) || cc, apps: v.flatrate.map((p) => p.provider_name).slice(0, 4) }));
     }
 
-    // Movie release status in India (theatrical vs digital) when known.
     let releaseNote = null;
-    const rawDate = d.release_date || d.first_air_date || "";
     if (type === "movie") {
       const inRel = d.release_dates?.results?.find((r) => r.iso_3166_1 === "IN")?.release_dates || [];
       const digital = inRel.find((r) => r.type === 4);
       const theatrical = inRel.find((r) => r.type === 3 || r.type === 2);
       const today = new Date();
-      const rel = new Date((theatrical?.release_date || rawDate) || 0);
+      const rel = new Date(theatrical?.release_date || rawDate || 0);
       if (rawDate && rel > today) releaseNote = `Not released yet. Releases ${rel.toDateString().slice(4)}.`;
       else if (!availableInIndia && !digital && rawDate && today - rel < 1000 * 60 * 60 * 24 * 75)
         releaseNote = "Released recently. It may still be in theatres and not on OTT yet.";
@@ -87,10 +95,11 @@ export default async function handler(req, res) {
         genres: (d.genres || []).map((g) => g.name).slice(0, 3),
         ratings,
         availableInIndia,
-        india,
+        summary,
+        apps,
+        priceSource,
         elsewhere,
         releaseNote,
-        moreLink: fallback,
       },
       21600
     );

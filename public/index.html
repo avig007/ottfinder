@@ -23,7 +23,7 @@
 :root{
   --bg:#f6f4f9; --surface:#ffffff; --surface-2:#ece8f2; --fg:#1b1724; --muted:#6c6678; --line:#e1dcea;
   --accent:#e8492a; --accent-ink:#ffffff; --ok:#13865a; --no:#c2342b;
-  --imdb:#9a6c00; --fresh:#d22f1e; --rotten:#4f8a2a;
+  --imdb:#9a6c00; --fresh:#d22f1e; --rotten:#4f8a2a; --warn:#a85400;
   --display:"Bricolage Grotesque", ui-rounded, system-ui, sans-serif;
   --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --r:16px;
@@ -31,11 +31,11 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#14121a; --surface:#1e1b27; --surface-2:#282434; --fg:#f1eef7; --muted:#a29cb0; --line:#2f2a3b;
   --accent:#ff6d4d; --accent-ink:#1a0703; --ok:#3ccf8e; --no:#ff7a70;
-  --imdb:#f5c518; --fresh:#ff6a55; --rotten:#8fd35c; color-scheme:dark}}
+  --imdb:#f5c518; --fresh:#ff6a55; --rotten:#8fd35c; --warn:#ffad5c; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#14121a; --surface:#1e1b27; --surface-2:#282434; --fg:#f1eef7; --muted:#a29cb0; --line:#2f2a3b;
   --accent:#ff6d4d; --accent-ink:#1a0703; --ok:#3ccf8e; --no:#ff7a70;
-  --imdb:#f5c518; --fresh:#ff6a55; --rotten:#8fd35c; color-scheme:dark}
+  --imdb:#f5c518; --fresh:#ff6a55; --rotten:#8fd35c; --warn:#ffad5c; color-scheme:dark}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -74,9 +74,24 @@ form.search{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;backgroun
 .top2{display:grid;grid-template-columns:110px 1fr;gap:16px;align-items:start;margin-top:6px}
 .top2 img,.top2 .ph{width:110px;height:165px;border-radius:12px}
 .top2 h2{font-size:1.6rem;font-weight:700;line-height:1.1;margin-bottom:6px}
-.verdict{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.85rem;padding:6px 12px;border-radius:999px;margin-top:10px}
-.verdict.yes{color:var(--ok);background:color-mix(in srgb,var(--ok) 13%,transparent)}
-.verdict.no{color:var(--no);background:color-mix(in srgb,var(--no) 13%,transparent)}
+.verdict{display:flex;gap:10px;align-items:flex-start;font-weight:600;font-size:.95rem;padding:12px 14px;border-radius:12px;margin-top:16px;line-height:1.35}
+.verdict::before{content:"";flex:none;width:10px;height:10px;border-radius:50%;background:currentColor;margin-top:5px}
+.verdict.included{color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
+.verdict.extra{color:var(--warn);background:color-mix(in srgb,var(--warn) 13%,transparent)}
+.verdict.no{color:var(--no);background:color-mix(in srgb,var(--no) 12%,transparent)}
+.offers{display:grid;gap:10px}
+.offer{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:6px}
+.offer .head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.offer .head b{font-family:var(--display);font-size:1.1rem;font-weight:700}
+.pill{font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.pill.included,.pill.free{color:var(--ok);background:color-mix(in srgb,var(--ok) 13%,transparent)}
+.pill.addon,.pill.paid{color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)}
+.offer p{margin:0;font-size:.9rem;color:var(--muted)}
+.prices{display:flex;flex-wrap:wrap;gap:8px}
+.price{display:inline-flex;gap:6px;align-items:baseline;background:var(--surface-2);border-radius:8px;padding:4px 10px;font-size:.85rem}
+.price b{font-family:var(--display);font-size:1rem;font-variant-numeric:tabular-nums}
+.price span{color:var(--muted);font-size:.78rem}
+.offer a{color:var(--accent);font-weight:600;font-size:.9rem;text-decoration:none;justify-self:start}
 .ov{color:var(--muted);font-size:.95rem;margin:14px 0 0}
 section h3{font-family:var(--body);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:22px 0 10px}
 .apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
@@ -335,7 +350,7 @@ function renderRecs(list) {
       <div>
         <b>${esc(r.title)}</b><span class="tag">${r.type === "tv" ? "Series" : "Movie"}${r.year ? " · " + r.year : ""}</span>
         ${ratingBadges(r.ratings)}
-        <span class="on">${r.streamOn.length ? "On " + esc(r.streamOn.join(", ")) : "Not streaming in India"}</span>
+        <span class="on">${r.streamOn.length ? "Included with " + esc(r.streamOn.join(", ")) : "Not in any subscription in India"}</span>
       </div>
     </button>`).join("")}</div>`;
   box.querySelectorAll(".rec").forEach((b) => b.addEventListener("click", () => { lastResults = []; openTitle(list[b.dataset.i]); }));
@@ -423,10 +438,24 @@ function renderList() {
   out.querySelectorAll(".hit").forEach((b) => b.addEventListener("click", () => openTitle(lastResults[b.dataset.i])));
 }
 
-const appCards = (list) => `<div class="apps">${list.map((p) => `
-  <a class="app" href="${p.url}" target="_blank" rel="noopener">
-    ${p.logo ? `<img src="${p.logo}" alt="">` : ""}<span>${esc(p.name)}</span>
-  </a>`).join("")}</div>`;
+const PILL = { included: "Included in subscription", free: "Free", addon: "Add-on needed", paid: "Pay extra" };
+
+function priceChip(kind, p) {
+  if (!p) return "";
+  const meta = [p.quality, p.unit].filter(Boolean).join(", ");
+  return `<span class="price">${kind} <b>${p.price ? esc(p.price) : "price not listed"}</b>${meta ? `<span>${esc(meta)}</span>` : ""}</span>`;
+}
+
+const offerCards = (apps) => `<div class="offers">${apps.map((a) => {
+  const prices = priceChip(a.status === "included" || a.status === "free" ? "Or rent" : "Rent", a.rent)
+    + priceChip(a.status === "included" || a.status === "free" ? "Or buy to keep" : "Buy", a.buy);
+  return `<div class="offer">
+    <div class="head"><b>${esc(a.app)}</b><span class="pill ${a.status}">${PILL[a.status]}</span></div>
+    <p>${esc(a.detail)}</p>
+    ${prices ? `<div class="prices">${prices}</div>` : ""}
+    ${a.url ? `<a href="${a.url}" target="_blank" rel="noopener">Open in ${esc(a.app)} →</a>` : ""}
+  </div>`;
+}).join("")}</div>`;
 
 async function openTitle(r) {
   home.hidden = true;
@@ -437,8 +466,8 @@ async function openTitle(r) {
     const meta = [t.type === "tv" ? "Series" : "Movie", t.year,
       t.runtime ? `${Math.floor(t.runtime / 60)}h ${t.runtime % 60}m` : null,
       t.seasons ? `${t.seasons} season${t.seasons > 1 ? "s" : ""}` : null, ...t.genres].filter(Boolean).join(" · ");
-    const sections = [["Stream with subscription", t.india.stream], ["Free", t.india.free], ["Rent", t.india.rent], ["Buy", t.india.buy]]
-      .filter(([, l]) => l.length).map(([h, l]) => `<section><h3>${h}</h3>${appCards(l)}</section>`).join("");
+    const sections = t.apps.length ? `<section><h3>Where to watch in India</h3>${offerCards(t.apps)}
+      ${t.priceSource === "tmdb" && t.apps.some((a) => a.rent || a.buy) ? `<p class="ov" style="font-size:.8rem">Prices couldn't be loaded right now. Open the app to see the price.</p>` : ""}</section>` : "";
     const notIn = !t.availableInIndia ? `
       ${t.releaseNote ? `<div class="note">${esc(t.releaseNote)}</div>` : ""}
       ${t.elsewhere.length ? `<section><h3>Streaming outside India</h3><ul>${t.elsewhere.map((e) =>
@@ -454,9 +483,9 @@ async function openTitle(r) {
           <h2>${esc(t.title)}</h2>
           <span class="tag">${esc(meta)}</span>
           ${ratingBadges(t.ratings)}
-          <span class="verdict ${t.availableInIndia ? "yes" : "no"}">● ${t.availableInIndia ? "Available in India" : "Not available in India"}</span>
         </div>
       </div>
+      <div class="verdict ${t.summary.kind}">${esc(t.summary.text)}</div>
       ${sections}${notIn}
       ${t.overview ? `<p class="ov">${esc(t.overview)}</p>` : ""}`;
     $("home-btn").onclick = showHome;

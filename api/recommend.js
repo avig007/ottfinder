@@ -77,7 +77,11 @@ async function enrich(type, r) {
       year: dateOf(d).slice(0, 4),
       poster: d.poster_path ? `https://image.tmdb.org/t/p/w342${d.poster_path}` : null,
       ratings,
-      streamOn: (IN.flatrate || []).map((p) => p.provider_name).slice(0, 2),
+      // Only apps where it's included in the normal subscription (not paid add-on channels).
+      streamOn: [...new Set((IN.flatrate || [])
+        .map((p) => p.provider_name)
+        .filter((n) => !/channel/i.test(n))
+        .map((n) => n.replace(/\s+with ads$/i, "").replace(/^Amazon Prime Video$/, "Prime Video")))].slice(0, 2),
       score: combinedScore(ratings, r.vote_average),
     };
   } catch {
