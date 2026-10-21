@@ -35,11 +35,10 @@ AI search lets you describe what you want ("feel-good Hindi comedies on Netflix"
 
 Add these in Vercel → ottfinder → Settings → **Environment Variables**:
 - `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`: the same keys you use for CutTrack (any one is enough; more = backups)
-- `APP_PASSCODE`: any passcode you choose. The app asks for it once per phone, so nobody else who finds the link can spend your AI credit.
 
 Then go to **Deployments → ⋯ → Redeploy**.
 
-Prefer keeping keys as GitHub secrets, like CutTrack? Add `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `APP_PASSCODE` and `VERCEL_TOKEN` under this repo's Settings → Secrets and variables → Actions, then run **Actions → Sync keys to Vercel → Run workflow**. It copies them into Vercel and redeploys.
+Prefer keeping keys as GitHub secrets, like CutTrack? Add `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY` and `VERCEL_TOKEN` under this repo's Settings → Secrets and variables → Actions, then run **Actions → Sync keys to Vercel → Run workflow**. It copies them into Vercel and redeploys.
 
 ### 5. Put it on your iPhone
 Open the Vercel URL in Safari → Share → **Add to Home Screen**.
@@ -58,6 +57,6 @@ Open the Vercel URL in Safari → Share → **Add to Home Screen**.
 - `api/_justwatch.js`, `api/_apps.js`: India prices and the included / pay-extra answer per app
 - `api/ask.js`: AI search (the AI plans the search; availability, prices and ratings always come from live data)
 - `api/transcribe.js`: voice to text
-- `api/_ai.js`: AI providers with automatic fallback (same as CutTrack); `api/_guard.js`: passcode lock
+- `api/_ai.js`: AI providers with automatic fallback (same as CutTrack); `api/_guard.js`: request handling and a 60-per-hour limit per device
 - `api/_enrich.js`: adds ratings and included-with apps to a list of titles
 - `api/_tmdb.js`, `api/_omdb.js`: shared helpers (read `TMDB_TOKEN` and `OMDB_KEY`)

@@ -1,6 +1,6 @@
 // Used by .github/workflows/sync-keys-to-vercel.yml. Never prints key values.
 const { VERCEL_TOKEN, VERCEL_PROJECT, VERCEL_TEAM_ID, REDEPLOY } = process.env;
-const KEYS = ["OPENAI_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY", "APP_PASSCODE"];
+const KEYS = ["OPENAI_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY"];
 
 if (!VERCEL_TOKEN) {
   // Not set up yet: skip quietly instead of failing every push (you can add keys directly in Vercel instead).

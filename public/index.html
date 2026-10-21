@@ -96,12 +96,6 @@ form.search{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;backgroun
 .aihead h2{font-size:1.35rem;font-weight:800;line-height:1.2;outline:none}
 .why{font-size:.86rem;color:var(--fg);font-style:italic}
 .switch{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:6px;color:var(--muted);font-size:.9rem}
-.lock{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:14px;display:grid;grid-template-columns:minmax(0,1fr);gap:12px;box-shadow:var(--shadow)}
-.lock h3{font-size:1.15rem;font-weight:700}
-.lock p{margin:0;color:var(--muted);font-size:.92rem}
-.lock form{display:flex;gap:8px}
-.lock input{flex:1;min-width:0;min-height:48px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);font-size:1rem}
-.err{color:var(--no);font-weight:600;font-size:.9rem;margin:0}
 .btn.ghost{background:var(--surface);color:var(--fg);border:1px solid var(--line);box-shadow:none}
 .recent{display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .recent::-webkit-scrollbar{display:none}
@@ -587,36 +581,19 @@ function renderTry() {
   $("try").querySelectorAll("[data-t]").forEach((b) => (b.onclick = () => { q.value = b.dataset.t; syncClear(); go({ v: "ask", q: b.dataset.t }); }));
 }
 
-// AI and voice are locked with your passcode (APP_PASSCODE in Vercel), so nobody else can spend your AI credit.
 async function apiPost(path, body) {
   const r = await fetch(path, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-app-passcode": store.get("passcode", "") },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw Object.assign(new Error(j.error || "Something went wrong. Try again."), { code: j.code, status: r.status });
   return j;
 }
-function lockPanel(onSaved, wrong) {
-  return `<div class="lock" id="lock">
-    <h3>Enter your passcode</h3>
-    <p>AI search and voice use your AI credit, so they're locked to you. Use the passcode you set as APP_PASSCODE in Vercel. You only need to do this once on this phone.</p>
-    ${wrong ? `<p class="err" role="alert">That passcode didn't match. Try again.</p>` : ""}
-    <form id="lock-form"><label class="sr-only" for="pass">Passcode</label>
-      <input id="pass" type="password" autocomplete="current-password" required>
-      <button class="btn" type="submit">Unlock</button></form>
-  </div>`;
-}
-function wireLock(onSaved) {
-  const f = $("lock-form"); if (!f) return;
-  $("pass").focus();
-  f.onsubmit = (e) => { e.preventDefault(); store.set("passcode", $("pass").value.trim()); onSaved(); };
-}
 function aiError(e) {
-  if (e.code === "not_configured") return "AI isn't set up yet. Add APP_PASSCODE and an AI key in Vercel (steps in the README).";
   if (e.code === "ai_quota") return "Your AI credit has run out on every provider. Top up OpenAI, or add a Gemini or Groq key.";
-  if (e.code === "ai_key") return "An AI key in Vercel is wrong or missing.";
+  if (e.code === "ai_key") return "AI isn't set up yet, or a key is wrong. Add OPENAI_API_KEY, GEMINI_API_KEY or GROQ_API_KEY in Vercel.";
   if (e.code === "rate_limited") return "Too many requests at once. Wait a few seconds and try again.";
   return e.message;
 }
@@ -629,10 +606,6 @@ async function showAsk(term) {
   showPage(`${backBtn}<div class="aihead"><span class="label">${SPARK} AI search</span><h2 tabindex="-1">Working out “${esc(term)}”…</h2></div>
     <div class="recs" style="margin-top:14px">${Array.from({ length: 4 }, () => `<div class="sk" style="height:126px;border-radius:16px"></div>`).join("")}</div>`);
   wireBack(); announce(`Asking AI: ${term}`);
-  if (!store.get("passcode", "")) {
-    showPage(`${backBtn}<div class="aihead"><span class="label">${SPARK} AI search</span><h2 tabindex="-1">“${esc(term)}”</h2></div>${lockPanel()}`);
-    wireBack(); wireLock(() => showAsk(term)); return;
-  }
   try {
     const j = await apiPost("/api/ask", { q: term });
     if (n !== askSeq) return;
@@ -665,22 +638,11 @@ async function showAsk(term) {
     announce(`${j.results.length} results. ${j.understood || ""}`);
   } catch (e) {
     if (n !== askSeq) return;
-    if (e.code === "bad_passcode") {
-      store.set("passcode", "");
-      showPage(`${backBtn}<div class="aihead"><span class="label">${SPARK} AI search</span><h2 tabindex="-1">“${esc(term)}”</h2></div>${lockPanel(null, true)}`);
-      wireBack(); wireLock(() => showAsk(term)); return;
-    }
     showPage(`${backBtn}<div class="empty"><b>AI search didn't work</b>${esc(aiError(e))}<br><button class="btn ghost" id="to-search" style="margin-top:14px">Search titles instead</button></div>`);
     wireBack(); $("to-search").onclick = () => go({ v: "search", q: term });
   }
 }
 
-function showUnlock(wrong) {
-  showPage(`${backBtn}<div class="aihead"><span class="label">${SPARK} Voice and AI search</span></div>${lockPanel(null, wrong)}`);
-  const restore = () => render(parse(location.hash)); // the unlock screen isn't a page in history
-  page.querySelectorAll("[data-back]").forEach((x) => (x.onclick = restore));
-  wireLock(() => { restore(); toast("Unlocked. Tap the mic to speak."); });
-}
 // Voice: records a short clip, sends it for transcription, then runs an AI search with the words.
 const Voice = { rec: null, state: "idle" };
 const micBtn = $("mic");
@@ -706,9 +668,6 @@ micBtn.addEventListener("click", async () => {
   if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
     q.focus(); toast("Voice isn't supported here. Use the mic key on your keyboard."); return;
   }
-  if (!store.get("passcode", "")) {
-    showUnlock(); return;
-  }
   let stream;
   try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
   catch { toast("Microphone is blocked. Allow it in iPhone Settings › Apps › Safari › Microphone."); return; }
@@ -731,7 +690,6 @@ micBtn.addEventListener("click", async () => {
       go({ v: "ask", q: text });
     } catch (e) {
       micState("idle");
-      if (e.code === "bad_passcode") { store.set("passcode", ""); showUnlock(true); return; }
       toast(e.code === "no_speech" ? "Didn't hear anything. Try again." : aiError(e));
     }
   };
