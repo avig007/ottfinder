@@ -78,6 +78,30 @@ form.search{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;backgroun
 .field-search input:focus{border-color:var(--accent)}
 .clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:0;background:none;color:var(--muted);font-size:1.25rem;line-height:1}
 .btn{border:0;border-radius:14px;min-height:48px;padding:0 20px;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:1rem}
+.mic{flex:none;width:48px;height:48px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);display:grid;place-items:center;box-shadow:var(--shadow)}
+.mic svg{width:22px;height:22px}
+.mic.listening{background:var(--no);border-color:var(--no);color:#fff;animation:pulse 1.4s ease-in-out infinite}
+.mic.busy svg{animation:spin 1s linear infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--no) 45%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.listen{display:flex;align-items:center;gap:8px;color:var(--no);font-weight:700;font-size:.9rem;margin:-4px 0 8px}
+.listen::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor;animation:pulse 1.4s infinite}
+.try{display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.try::-webkit-scrollbar{display:none}
+.try .label{flex:none;margin-right:2px}
+.chip.ai{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));color:var(--accent)}
+.spark{width:14px;height:14px;flex:none}
+.aihead{display:grid;gap:8px;margin-top:6px}
+.aihead .label{display:inline-flex;align-items:center;gap:6px;color:var(--accent)}
+.aihead h2{font-size:1.35rem;font-weight:800;line-height:1.2;outline:none}
+.why{font-size:.86rem;color:var(--fg);font-style:italic}
+.switch{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:6px;color:var(--muted);font-size:.9rem}
+.lock{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:14px;display:grid;grid-template-columns:minmax(0,1fr);gap:12px;box-shadow:var(--shadow)}
+.lock h3{font-size:1.15rem;font-weight:700}
+.lock p{margin:0;color:var(--muted);font-size:.92rem}
+.lock form{display:flex;gap:8px}
+.lock input{flex:1;min-width:0;min-height:48px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);font-size:1rem}
+.err{color:var(--no);font-weight:600;font-size:.9rem;margin:0}
 .btn.ghost{background:var(--surface);color:var(--fg);border:1px solid var(--line);box-shadow:none}
 .recent{display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .recent::-webkit-scrollbar{display:none}
@@ -149,6 +173,7 @@ form.search{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;backgroun
 .recs{display:grid;gap:10px;margin-top:10px;list-style:none;padding:0}
 .rec{display:grid;grid-template-columns:30px 72px 1fr;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 14px 8px 8px;width:100%;transition:transform .15s}
 .rec:active{transform:scale(.99)}
+.rec.norank{grid-template-columns:72px minmax(0,1fr);padding-left:8px}
 .rec .n{font-family:var(--display);font-weight:800;font-size:1.25rem;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
 .rec .poster{width:72px;border-radius:8px}
 .rec .body{display:grid;gap:6px;min-width:0}
@@ -231,12 +256,14 @@ form.search{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;backgroun
   <form class="search" id="f" role="search" autocomplete="off">
     <div class="field-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <label for="q" class="sr-only">Search a movie or series</label>
-      <input id="q" type="search" placeholder="Search a movie or series" enterkeyhint="search" autocapitalize="off" spellcheck="false">
+      <label for="q" class="sr-only">Search a title, or describe what you want to watch</label>
+      <input id="q" type="search" placeholder="Search or describe it" enterkeyhint="search" autocapitalize="off" spellcheck="false">
       <button class="clear" id="q-clear" type="button" aria-label="Clear search" hidden>×</button>
     </div>
+    <button class="mic" id="mic" type="button" aria-label="Search by voice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
     <button class="btn" type="submit">Find</button>
   </form>
+  <p class="listen" id="listen" hidden>Listening… tap stop when done</p>
 
   <p id="sr" class="sr-only" aria-live="polite"></p>
 
@@ -244,6 +271,7 @@ form.search{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;backgroun
     <!-- Home -->
     <section id="home" aria-labelledby="home-title">
       <div class="recent" id="recent" hidden></div>
+      <div class="try" id="try"></div>
       <div class="homehead">
         <div>
           <h2 id="home-title">New &amp; top rated</h2>
@@ -361,12 +389,12 @@ const onLine = (apps) => apps.length
 /* ============ routing (back button and shareable links) ============ */
 // #/search/<query>  #/movie/<id>  #/tv/<id>  (empty = home)
 function parse(hash) {
-  const m = hash.match(/^#\/(search|movie|tv)\/(.+)$/);
+  const m = hash.match(/^#\/(search|ask|movie|tv)\/(.+)$/);
   if (!m) return { v: "home" };
-  if (m[1] === "search") return { v: "search", q: decodeURIComponent(m[2]) };
+  if (m[1] === "search" || m[1] === "ask") return { v: m[1], q: decodeURIComponent(m[2]) };
   return { v: "title", type: m[1], id: +m[2] || 0 };
 }
-const hashOf = (s) => s.v === "search" ? `#/search/${encodeURIComponent(s.q)}` : s.v === "title" ? `#/${s.type}/${s.id}` : location.pathname;
+const hashOf = (s) => s.v === "search" || s.v === "ask" ? `#/${s.v}/${encodeURIComponent(s.q)}` : s.v === "title" ? `#/${s.type}/${s.id}` : location.pathname;
 let depth = 0;
 function go(state) {
   history.pushState({ ...state, depth: ++depth }, "", hashOf(state));
@@ -377,9 +405,10 @@ window.addEventListener("popstate", (e) => { depth = e.state?.depth ?? 0; render
 
 function render(s) {
   if (s.v === "search") return showSearch(s.q);
+  if (s.v === "ask") return showAsk(s.q);
   if (s.v === "title") return showTitle(s.type, s.id);
   page.hidden = true; page.innerHTML = ""; home.hidden = false; q.value = ""; syncClear();
-  renderRecent();
+  renderRecent(); renderTry();
   document.title = "OTT Finder";
 }
 
@@ -392,8 +421,13 @@ $("f").addEventListener("submit", (e) => {
   const term = q.value.trim();
   if (!term) { q.focus(); return; }
   q.blur();
-  go({ v: "search", q: term });
+  go({ v: looksLikeAsk(term) ? "ask" : "search", q: term });
 });
+// A short title goes to normal search; a description ("hindi thrillers on netflix", "movies like dark") goes to AI.
+function looksLikeAsk(t) {
+  const words = t.trim().split(/\s+/).length;
+  return words >= 5 || /\b(like|similar|movies|films|series|shows|something|recommend|suggest|starring|directed|about|where|feel[- ]good|on (netflix|prime|hotstar|jiohotstar|apple|sony|zee5)|hindi|tamil|telugu|malayalam|kannada|bengali|korean|bollywood|best|top|new|latest|under|rated)\b/i.test(t);
+}
 $("logo").addEventListener("click", () => go({ v: "home" }));
 
 function remember(term) {
@@ -405,8 +439,8 @@ function renderRecent() {
   const box = $("recent");
   box.hidden = !list.length;
   box.innerHTML = list.length ? `<span class="label">Recent</span>${list.map((t) =>
-    `<button class="chip" data-q="${esc(t)}">${esc(t)}</button>`).join("")}<button class="textbtn" id="recent-clear">Clear</button>` : "";
-  box.querySelectorAll("[data-q]").forEach((b) => b.onclick = () => { q.value = b.dataset.q; go({ v: "search", q: b.dataset.q }); });
+    `<button class="chip ${looksLikeAsk(t) ? "ai" : ""}" data-q="${esc(t)}">${looksLikeAsk(t) ? SPARK : ""}${esc(t)}</button>`).join("")}<button class="textbtn" id="recent-clear">Clear</button>` : "";
+  box.querySelectorAll("[data-q]").forEach((b) => b.onclick = () => { q.value = b.dataset.q; go({ v: looksLikeAsk(b.dataset.q) ? "ask" : "search", q: b.dataset.q }); });
   $("recent-clear")?.addEventListener("click", () => { store.set("recent", []); renderRecent(); announce("Recent searches cleared"); });
 }
 
@@ -428,11 +462,12 @@ async function showSearch(term) {
     if (parse(location.hash).q !== term) return;
     remember(term);
     if (!results.length) {
-      showPage(`${backBtn}<div class="empty"><b>No results for “${esc(term)}”</b>Check the spelling, or try the original title.</div>`);
-      wireBack(); announce(`No results for ${term}`); return;
+      showPage(`${backBtn}<div class="empty"><b>No title called “${esc(term)}”</b>Check the spelling, or let AI work out what you mean.<br><button class="btn" id="to-ai" style="margin-top:14px">${SPARK.replace('class="spark"','class="spark" style="width:16px;height:16px"')} Ask AI</button></div>`);
+      wireBack(); $("to-ai").onclick = () => go({ v: "ask", q: term }); announce(`No results for ${term}`); return;
     }
     if (results.length === 1) { history.replaceState({ depth }, "", hashOf({ v: "title", ...results[0] })); return showTitle(results[0].type, results[0].id); }
     showPage(`${backBtn}<div class="pagehead"><h2 tabindex="-1">Results for “${esc(term)}”</h2></div>
+      <div class="switch">Not what you meant? <button class="textbtn" id="to-ai">${SPARK} Ask AI instead</button></div>
       <ul class="grid">${results.map((r) => `<li>
         <button class="card" data-type="${r.type}" data-id="${r.id}">
           ${poster(r.poster)}
@@ -440,6 +475,7 @@ async function showSearch(term) {
         </button></li>`).join("")}</ul>`);
     wireBack();
     page.querySelectorAll(".card").forEach((b) => (b.onclick = () => go({ v: "title", type: b.dataset.type, id: +b.dataset.id })));
+    $("to-ai").onclick = () => go({ v: "ask", q: term });
     page.querySelector("h2").focus({ preventScroll: true });
     announce(`${results.length} results for ${term}`);
   } catch (err) {
@@ -541,6 +577,166 @@ async function showTitle(type, id) {
     showPage(`${backBtn}<div class="empty"><b>Couldn't load this title</b>${esc(err.message)}</div>`); wireBack();
   }
 }
+
+
+/* ============ AI search + voice ============ */
+const SPARK = `<svg class="spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9zM19 15l.9 2.6 2.6.9-2.6.9L19 22l-.9-2.6-2.6-.9 2.6-.9z"/></svg>`;
+const TRY = ["Feel-good Hindi comedies on Netflix", "Movies like Interstellar", "Short crime series rated above 8", "New Malayalam thrillers", "Movie where a man relives the same day"];
+function renderTry() {
+  $("try").innerHTML = `<span class="label">Try asking</span>` + TRY.map((t) => `<button class="chip ai" data-t="${esc(t)}">${SPARK}${esc(t)}</button>`).join("");
+  $("try").querySelectorAll("[data-t]").forEach((b) => (b.onclick = () => { q.value = b.dataset.t; syncClear(); go({ v: "ask", q: b.dataset.t }); }));
+}
+
+// AI and voice are locked with your passcode (APP_PASSCODE in Vercel), so nobody else can spend your AI credit.
+async function apiPost(path, body) {
+  const r = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-app-passcode": store.get("passcode", "") },
+    body: JSON.stringify(body),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(j.error || "Something went wrong. Try again."), { code: j.code, status: r.status });
+  return j;
+}
+function lockPanel(onSaved, wrong) {
+  return `<div class="lock" id="lock">
+    <h3>Enter your passcode</h3>
+    <p>AI search and voice use your AI credit, so they're locked to you. Use the passcode you set as APP_PASSCODE in Vercel. You only need to do this once on this phone.</p>
+    ${wrong ? `<p class="err" role="alert">That passcode didn't match. Try again.</p>` : ""}
+    <form id="lock-form"><label class="sr-only" for="pass">Passcode</label>
+      <input id="pass" type="password" autocomplete="current-password" required>
+      <button class="btn" type="submit">Unlock</button></form>
+  </div>`;
+}
+function wireLock(onSaved) {
+  const f = $("lock-form"); if (!f) return;
+  $("pass").focus();
+  f.onsubmit = (e) => { e.preventDefault(); store.set("passcode", $("pass").value.trim()); onSaved(); };
+}
+function aiError(e) {
+  if (e.code === "not_configured") return "AI isn't set up yet. Add APP_PASSCODE and an AI key in Vercel (steps in the README).";
+  if (e.code === "ai_quota") return "Your AI credit has run out on every provider. Top up OpenAI, or add a Gemini or Groq key.";
+  if (e.code === "ai_key") return "An AI key in Vercel is wrong or missing.";
+  if (e.code === "rate_limited") return "Too many requests at once. Wait a few seconds and try again.";
+  return e.message;
+}
+
+let askSeq = 0;
+async function showAsk(term) {
+  const n = ++askSeq;
+  q.value = term; syncClear();
+  document.title = `${term} · OTT Finder`;
+  showPage(`${backBtn}<div class="aihead"><span class="label">${SPARK} AI search</span><h2 tabindex="-1">Working out “${esc(term)}”…</h2></div>
+    <div class="recs" style="margin-top:14px">${Array.from({ length: 4 }, () => `<div class="sk" style="height:126px;border-radius:16px"></div>`).join("")}</div>`);
+  wireBack(); announce(`Asking AI: ${term}`);
+  if (!store.get("passcode", "")) {
+    showPage(`${backBtn}<div class="aihead"><span class="label">${SPARK} AI search</span><h2 tabindex="-1">“${esc(term)}”</h2></div>${lockPanel()}`);
+    wireBack(); wireLock(() => showAsk(term)); return;
+  }
+  try {
+    const j = await apiPost("/api/ask", { q: term });
+    if (n !== askSeq) return;
+    remember(term);
+    const rows = j.results.map((r) => `<li>
+      <button class="rec norank" data-type="${r.type}" data-id="${r.id}">
+        ${poster(r.poster)}
+        <span class="body">
+          <b>${esc(r.title)}</b><span class="tag">${typeLabel(r.type)}${r.year ? " · " + r.year : ""}</span>
+          ${r.why ? `<span class="why">${esc(r.why)}</span>` : ""}
+          ${ratingBadges(r.ratings)}
+          ${onLine(r.streamOn)}
+        </span>
+      </button></li>`).join("");
+    showPage(`${backBtn}
+      <div class="aihead">
+        <span class="label">${SPARK} AI search</span>
+        <h2 tabindex="-1">${esc(j.understood || term)}</h2>
+        ${j.chips.length ? `<div class="chips" style="margin-top:0">${j.chips.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>` : ""}
+        <div class="switch">Looking for a title called “${esc(term)}”? <button class="textbtn" id="to-search">Search titles</button></div>
+      </div>
+      ${j.note ? `<div class="note" role="status">${esc(j.note)}</div>` : ""}
+      ${j.results.length ? `<ol class="recs" style="margin-top:14px">${rows}</ol>`
+        : `<div class="empty"><b>Nothing found</b>Try describing it differently, or loosen the filters.</div>`}`);
+    wireBack();
+    $("to-search").onclick = () => go({ v: "search", q: term });
+    page.querySelectorAll(".rec").forEach((b) => (b.onclick = () => go({ v: "title", type: b.dataset.type, id: +b.dataset.id })));
+    page.querySelectorAll("a.rate").forEach((a) => { const s = document.createElement("span"); s.className = a.className; s.innerHTML = a.innerHTML; a.replaceWith(s); });
+    page.querySelector("h2").focus({ preventScroll: true });
+    announce(`${j.results.length} results. ${j.understood || ""}`);
+  } catch (e) {
+    if (n !== askSeq) return;
+    if (e.code === "bad_passcode") {
+      store.set("passcode", "");
+      showPage(`${backBtn}<div class="aihead"><span class="label">${SPARK} AI search</span><h2 tabindex="-1">“${esc(term)}”</h2></div>${lockPanel(null, true)}`);
+      wireBack(); wireLock(() => showAsk(term)); return;
+    }
+    showPage(`${backBtn}<div class="empty"><b>AI search didn't work</b>${esc(aiError(e))}<br><button class="btn ghost" id="to-search" style="margin-top:14px">Search titles instead</button></div>`);
+    wireBack(); $("to-search").onclick = () => go({ v: "search", q: term });
+  }
+}
+
+function showUnlock(wrong) {
+  showPage(`${backBtn}<div class="aihead"><span class="label">${SPARK} Voice and AI search</span></div>${lockPanel(null, wrong)}`);
+  const restore = () => render(parse(location.hash)); // the unlock screen isn't a page in history
+  page.querySelectorAll("[data-back]").forEach((x) => (x.onclick = restore));
+  wireLock(() => { restore(); toast("Unlocked. Tap the mic to speak."); });
+}
+// Voice: records a short clip, sends it for transcription, then runs an AI search with the words.
+const Voice = { rec: null, state: "idle" };
+const micBtn = $("mic");
+function micState(st) {
+  Voice.state = st;
+  micBtn.classList.toggle("listening", st === "listening");
+  micBtn.classList.toggle("busy", st === "transcribing");
+  micBtn.setAttribute("aria-label", st === "listening" ? "Stop recording" : st === "transcribing" ? "Transcribing" : "Search by voice");
+  micBtn.innerHTML = st === "listening"
+    ? `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/></svg>`
+    : st === "transcribing"
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>`;
+  $("listen").hidden = st !== "listening";
+}
+const blobToB64 = (blob) => new Promise((res, rej) => {
+  const fr = new FileReader();
+  fr.onload = () => res(String(fr.result).split(",")[1]); fr.onerror = rej; fr.readAsDataURL(blob);
+});
+micBtn.addEventListener("click", async () => {
+  if (Voice.state === "listening") { Voice.rec?.stop(); return; }
+  if (Voice.state === "transcribing") return;
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+    q.focus(); toast("Voice isn't supported here. Use the mic key on your keyboard."); return;
+  }
+  if (!store.get("passcode", "")) {
+    showUnlock(); return;
+  }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch { toast("Microphone is blocked. Allow it in iPhone Settings › Apps › Safari › Microphone."); return; }
+  const type = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm"].find((t) => MediaRecorder.isTypeSupported?.(t)) || "";
+  const rec = new MediaRecorder(stream, type ? { mimeType: type } : undefined), chunks = [];
+  Voice.rec = rec;
+  const cap = setTimeout(() => rec.state !== "inactive" && rec.stop(), 30000);
+  rec.ondataavailable = (e) => e.data?.size && chunks.push(e.data);
+  rec.onstop = async () => {
+    stream.getTracks().forEach((t) => t.stop()); clearTimeout(cap); Voice.rec = null;
+    micState("transcribing"); announce("Transcribing");
+    try {
+      const blob = new Blob(chunks, { type: (rec.mimeType || type || "audio/mp4").split(";")[0] });
+      if (blob.size < 1200) throw { code: "no_speech" };
+      const j = await apiPost("/api/transcribe", { audio: await blobToB64(blob), type: blob.type });
+      const text = (j.text || "").trim();
+      if (!text) throw { code: "no_speech" };
+      micState("idle");
+      q.value = text; syncClear();
+      go({ v: "ask", q: text });
+    } catch (e) {
+      micState("idle");
+      if (e.code === "bad_passcode") { store.set("passcode", ""); showUnlock(true); return; }
+      toast(e.code === "no_speech" ? "Didn't hear anything. Try again." : aiError(e));
+    }
+  };
+  rec.start(); micState("listening"); announce("Listening. Tap the button again when you're done.");
+});
 
 /* ============ home: filters + ranked list ============ */
 const GENRES = {

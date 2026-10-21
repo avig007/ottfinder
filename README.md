@@ -30,7 +30,18 @@ Data: TMDB watch providers (powered by JustWatch, region `IN`) and OMDb for rati
 
 If you added the variables after the first deploy, go to **Deployments → ⋯ → Redeploy** so they take effect.
 
-### 4. Put it on your iPhone
+### 4. Turn on AI search and voice
+AI search lets you describe what you want ("feel-good Hindi comedies on Netflix", "movies like Interstellar", "the film where a man relives the same day"). The mic button turns speech into a search. Both use the same AI keys as CutTrack: OpenAI first, then Gemini, then Groq if one runs out.
+
+Add these in Vercel → ottfinder → Settings → **Environment Variables**:
+- `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`: the same keys you use for CutTrack (any one is enough; more = backups)
+- `APP_PASSCODE`: any passcode you choose. The app asks for it once per phone, so nobody else who finds the link can spend your AI credit.
+
+Then go to **Deployments → ⋯ → Redeploy**.
+
+Prefer keeping keys as GitHub secrets, like CutTrack? Add `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `APP_PASSCODE` and `VERCEL_TOKEN` under this repo's Settings → Secrets and variables → Actions, then run **Actions → Sync keys to Vercel → Run workflow**. It copies them into Vercel and redeploys.
+
+### 5. Put it on your iPhone
 Open the Vercel URL in Safari → Share → **Add to Home Screen**.
 
 ## Notes
@@ -45,4 +56,8 @@ Open the Vercel URL in Safari → Share → **Add to Home Screen**.
 - `api/people.js`: actor and director suggestions for the filters
 - `api/img.js`: serves posters from your own domain (works on networks that block TMDB)
 - `api/_justwatch.js`, `api/_apps.js`: India prices and the included / pay-extra answer per app
+- `api/ask.js`: AI search (the AI plans the search; availability, prices and ratings always come from live data)
+- `api/transcribe.js`: voice to text
+- `api/_ai.js`: AI providers with automatic fallback (same as CutTrack); `api/_guard.js`: passcode lock
+- `api/_enrich.js`: adds ratings and included-with apps to a list of titles
 - `api/_tmdb.js`, `api/_omdb.js`: shared helpers (read `TMDB_TOKEN` and `OMDB_KEY`)

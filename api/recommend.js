@@ -1,5 +1,5 @@
 import { tmdb, send, img } from "./_tmdb.js";
-import { ratingsFor, combinedScore } from "./_omdb.js";
+import { enrich, isRated, applyRatingFilters } from "./_enrich.js";
 
 // GET /api/recommend?type=movie|tv&genre=18&since=6m|1y|5y|all&actor=123&director=456&imdb=7&rt=75
 // Top-rated titles for the home page, ranked by IMDb + Rotten Tomatoes, with the Indian app each is on.
@@ -65,32 +65,6 @@ async function candidates({ type, genre, since, actor, director }) {
     .slice(0, CANDIDATES);
 }
 
-async function enrich(type, r) {
-  try {
-    const d = await tmdb(`/${type}/${r.id}`, { append_to_response: "external_ids,watch/providers" });
-    const ratings = await ratingsFor(d.imdb_id || d.external_ids?.imdb_id);
-    const IN = d["watch/providers"]?.results?.IN || {};
-    return {
-      id: r.id,
-      type,
-      title: d.title || d.name,
-      year: dateOf(d).slice(0, 4),
-      poster: img("w342", d.poster_path),
-      backdrop: img("w780", d.backdrop_path),
-      overview: d.overview || "",
-      ratings,
-      // Only apps where it's included in the normal subscription (not paid add-on channels).
-      streamOn: [...new Set((IN.flatrate || [])
-        .map((p) => p.provider_name)
-        .filter((n) => !/channel/i.test(n))
-        .map((n) => n.replace(/\s+with ads$/i, "").replace(/^Amazon Prime Video$/, "Prime Video")))].slice(0, 2),
-      score: combinedScore(ratings, r.vote_average),
-    };
-  } catch {
-    return null;
-  }
-}
-
 export default async function handler(req, res) {
   const q = req.query;
   const f = {
@@ -105,11 +79,8 @@ export default async function handler(req, res) {
   try {
     const pool = await candidates(f);
     const rows = (await Promise.all(pool.map((r) => enrich(f.type, r)))).filter(Boolean);
-    const rated = (x) => (x.ratings && (x.ratings.imdb != null || x.ratings.rt != null) ? 1 : 0);
-    const results = rows
-      .filter((x) => !f.imdb || (x.ratings?.imdb ?? 0) >= f.imdb)
-      .filter((x) => !f.rt || (x.ratings?.rt ?? -1) >= f.rt)
-      .sort((a, b) => rated(b) - rated(a) || b.score - a.score)
+    const results = applyRatingFilters(rows, f.imdb, f.rt)
+      .sort((a, b) => isRated(b) - isRated(a) || b.score - a.score)
       .slice(0, SHOW);
     send(res, 200, { results, ratingsOn: !!process.env.OMDB_KEY }, 43200);
   } catch (e) {

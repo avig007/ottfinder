@@ -1,0 +1,36 @@
+# Copies your AI keys and passcode from GitHub repository secrets into Vercel, where the app can read them.
+# GitHub secrets on their own are only visible to GitHub Actions, not to the running app.
+#
+# Needs one extra repository secret: VERCEL_TOKEN (create it at vercel.com/account/tokens).
+# Runs on every push to main, and on demand from the Actions tab ("Run workflow").
+# Run it by hand after adding or changing a key; it redeploys the app so the new key takes effect.
+name: Sync keys to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      redeploy:
+        description: "Redeploy the app after syncing"
+        type: boolean
+        default: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_PROJECT: ${{ vars.VERCEL_PROJECT || 'ottfinder' }}
+      VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID || 'team_aKKDxEytEfvRmsUZyX9EFxM8' }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      APP_PASSCODE: ${{ secrets.APP_PASSCODE }}
+      REDEPLOY: ${{ github.event_name == 'workflow_dispatch' && inputs.redeploy }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/sync-vercel-env.mjs
