@@ -11,6 +11,9 @@ export async function tmdb(path, params = {}) {
   return r.json();
 }
 
+// TMDB images go through our own /api/img so they load even on networks that block TMDB (e.g. Jio).
+export const img = (size, path) => (path ? `/api/img?p=${size}${path}` : null);
+
 export function send(res, status, body, cacheSeconds = 0) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   if (cacheSeconds) res.setHeader("Cache-Control", `s-maxage=${cacheSeconds}, stale-while-revalidate=86400`);

@@ -1,4 +1,4 @@
-import { tmdb, send } from "./_tmdb.js";
+import { tmdb, send, img } from "./_tmdb.js";
 
 // GET /api/people?q=nolan&role=director|actor -> people for the actor / director filters
 export default async function handler(req, res) {
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
         id: p.id,
         name: p.name,
         dept: p.known_for_department,
-        photo: p.profile_path ? `https://image.tmdb.org/t/p/w92${p.profile_path}` : null,
+        photo: img("w185", p.profile_path),
         knownFor: (p.known_for || []).map((k) => k.title || k.name).filter(Boolean).slice(0, 2).join(", "),
       }));
     send(res, 200, { results }, 86400);

@@ -1,7 +1,7 @@
-import { tmdb, send } from "./_tmdb.js";
+import { tmdb, send, img } from "./_tmdb.js";
 import { ratingsFor } from "./_omdb.js";
 import { justwatchOffers } from "./_justwatch.js";
-import { groupByApp, verdict } from "./_apps.js";
+import { groupByApp, verdict, classify } from "./_apps.js";
 
 const COUNTRY = new Intl.DisplayNames(["en"], { type: "region" });
 
@@ -21,7 +21,10 @@ export default async function handler(req, res) {
   try {
     const d = await tmdb(`/${type}/${id}`, {
       language: "en-IN",
-      append_to_response: type === "movie" ? "watch/providers,release_dates,external_ids" : "watch/providers,external_ids",
+      append_to_response:
+        type === "movie"
+          ? "watch/providers,release_dates,external_ids,credits,videos"
+          : "watch/providers,external_ids,aggregate_credits,videos",
     });
     const title = d.title || d.name;
     const rawDate = d.release_date || d.first_air_date || "";
@@ -54,6 +57,34 @@ export default async function handler(req, res) {
     }
 
     const apps = groupByApp(offers, fallbackUrl, type === "tv");
+
+    // App logos from TMDB's provider list, matched to the same app names.
+    const logos = {};
+    for (const k of ["flatrate", "free", "ads", "rent", "buy"])
+      for (const p of IN[k] || []) {
+        const c = classify(p.provider_name, "", "");
+        if (!c.addon && !logos[c.app] && p.logo_path) logos[c.app] = img("w92", p.logo_path);
+      }
+    for (const a of apps) a.logo = logos[a.app] || null;
+
+    // People: directors (or series creators) and top-billed cast.
+    const crew = type === "movie" ? d.credits?.crew || [] : [];
+    const makers = (type === "movie"
+      ? crew.filter((c) => c.job === "Director")
+      : d.created_by || []
+    ).slice(0, 3).map((p) => ({ id: p.id, name: p.name }));
+    const castSrc = type === "movie" ? d.credits?.cast || [] : d.aggregate_credits?.cast || [];
+    const cast = castSrc.slice(0, 10).map((p) => ({
+      id: p.id,
+      name: p.name,
+      role: p.character || p.roles?.[0]?.character || "",
+      photo: img("w185", p.profile_path),
+    }));
+
+    // Trailer on YouTube, official ones first.
+    const vids = (d.videos?.results || []).filter((v) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser"));
+    vids.sort((a, b) => (b.official - a.official) || ((b.type === "Trailer") - (a.type === "Trailer")));
+    const trailer = vids[0] ? `https://www.youtube.com/watch?v=${vids[0].key}` : null;
     const summary = verdict(apps);
     const availableInIndia = apps.length > 0;
 
@@ -89,7 +120,13 @@ export default async function handler(req, res) {
         title,
         year: rawDate.slice(0, 4),
         overview: d.overview || "",
-        poster: d.poster_path ? `https://image.tmdb.org/t/p/w342${d.poster_path}` : null,
+        tagline: d.tagline || "",
+        poster: img("w342", d.poster_path),
+        backdrop: img("w1280", d.backdrop_path),
+        makers,
+        makerLabel: type === "movie" ? (makers.length > 1 ? "Directors" : "Director") : makers.length > 1 ? "Creators" : "Creator",
+        cast,
+        trailer,
         runtime: type === "movie" ? d.runtime : null,
         seasons: type === "tv" ? d.number_of_seasons : null,
         genres: (d.genres || []).map((g) => g.name).slice(0, 3),

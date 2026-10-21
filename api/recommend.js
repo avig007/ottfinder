@@ -1,4 +1,4 @@
-import { tmdb, send } from "./_tmdb.js";
+import { tmdb, send, img } from "./_tmdb.js";
 import { ratingsFor, combinedScore } from "./_omdb.js";
 
 // GET /api/recommend?type=movie|tv&genre=18&since=6m|1y|5y|all&actor=123&director=456&imdb=7&rt=75
@@ -75,7 +75,9 @@ async function enrich(type, r) {
       type,
       title: d.title || d.name,
       year: dateOf(d).slice(0, 4),
-      poster: d.poster_path ? `https://image.tmdb.org/t/p/w342${d.poster_path}` : null,
+      poster: img("w342", d.poster_path),
+      backdrop: img("w780", d.backdrop_path),
+      overview: d.overview || "",
       ratings,
       // Only apps where it's included in the normal subscription (not paid add-on channels).
       streamOn: [...new Set((IN.flatrate || [])

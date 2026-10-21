@@ -1,4 +1,4 @@
-import { tmdb, send } from "./_tmdb.js";
+import { tmdb, send, img } from "./_tmdb.js";
 
 // GET /api/search?q=disclosure day  -> top movie / TV matches
 export default async function handler(req, res) {
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
         type: r.media_type,
         title: r.title || r.name,
         year: (r.release_date || r.first_air_date || "").slice(0, 4),
-        poster: r.poster_path ? `https://image.tmdb.org/t/p/w185${r.poster_path}` : null,
+        poster: img("w185", r.poster_path),
         overview: r.overview || "",
       }));
     send(res, 200, { results }, 3600);

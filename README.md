@@ -43,4 +43,6 @@ Open the Vercel URL in Safari → Share → **Add to Home Screen**.
 - `api/title.js`: where to watch in India, ratings, release status, availability abroad
 - `api/recommend.js`: top-rated picks for the home page, with filters
 - `api/people.js`: actor and director suggestions for the filters
+- `api/img.js`: serves posters from your own domain (works on networks that block TMDB)
+- `api/_justwatch.js`, `api/_apps.js`: India prices and the included / pay-extra answer per app
 - `api/_tmdb.js`, `api/_omdb.js`: shared helpers (read `TMDB_TOKEN` and `OMDB_KEY`)

@@ -2,7 +2,7 @@
 // included with the subscription, free, needs a paid add-on channel, or rent/buy at a price.
 
 // Which app a package belongs to, and whether it is the app's subscription or its pay-per-title store.
-function classify(name = "", tech = "", monetization) {
+export function classify(name = "", tech = "", monetization) {
   const n = name.toLowerCase();
   const t = tech.toLowerCase();
   const channel = n.match(/^(.*?)\s+amazon channel$/i) || n.match(/^(.*?)\s+apple tv channel$/i);
