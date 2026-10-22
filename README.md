@@ -59,5 +59,6 @@ Open the Vercel URL in Safari → Share → **Add to Home Screen**.
 - `api/transcribe.js`: voice to text
 - `api/_ai.js`: AI providers with automatic fallback (same as CutTrack); `api/_guard.js`: request handling and a 60-per-hour limit per device
 - `api/_enrich.js`: adds ratings and included-with apps to a list of titles
+- `api/batch.js`: live ratings and where-to-watch for the titles in a watchlist
 - `public/icons/`: app logo and home-screen icons
 - `api/_tmdb.js`, `api/_omdb.js`: shared helpers (read `TMDB_TOKEN` and `OMDB_KEY`)

@@ -219,6 +219,74 @@ img.fade.in{opacity:1}
 .trp svg{width:14px;height:14px}
 .trl{display:inline-flex;align-items:center;gap:6px;margin-top:6px;color:var(--accent);font-weight:700;font-size:.82rem;text-decoration:none;min-height:30px}
 .trl svg{width:12px;height:12px}
+/* ---------- watchlists ---------- */
+.lists-btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-weight:700;font-size:.9rem}
+.lists-btn svg{width:18px;height:18px}
+.lists-btn .count{background:var(--accent);color:var(--accent-ink);border-radius:999px;font-size:.72rem;min-width:20px;padding:1px 6px;text-align:center}
+.svb{position:absolute;top:54px;right:10px;z-index:2;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);color:var(--fg);transition:transform .18s var(--ease),background .2s,color .2s}
+.svb:active{transform:scale(.9)}
+.svb[aria-pressed="true"]{color:var(--accent);background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.svb svg,.svp svg,.svl svg{width:17px;height:17px}
+.fx{position:absolute;top:14px;right:14px;z-index:3;display:flex;gap:8px}
+.fx .trp{position:static}
+.svp{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:999px;background:rgb(0 0 0 / .5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;border:1px solid rgb(255 255 255 / .18)}
+.svp[aria-pressed="true"]{color:#ff8f8f;border-color:rgb(255 120 120 / .5)}
+.cardlinks{display:flex;gap:12px;align-items:center}
+.svl{display:inline-flex;align-items:center;gap:5px;margin-top:6px;min-height:30px;border:0;background:none;padding:0;color:var(--muted);font-weight:700;font-size:.82rem}
+.svl[aria-pressed="true"]{color:var(--accent)}
+.actions button[aria-pressed="true"]{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-soft)}
+/* bottom sheet for choosing lists */
+.sheet-bg{position:fixed;inset:0;z-index:50;background:rgb(0 0 0 / .55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:fadein .2s ease}
+@keyframes fadein{from{opacity:0}}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;max-width:560px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;
+  padding:10px max(18px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -20px 60px rgb(0 0 0 / .5);animation:sheetup .32s var(--ease);max-height:85vh;overflow-y:auto}
+@keyframes sheetup{from{transform:translateY(100%)}}
+.sheet .grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 14px}
+.sheet h2{font-size:1.2rem;line-height:1.25}
+.sheet .sub2{color:var(--muted);font-size:.88rem;margin:4px 0 14px}
+.picks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.pick{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;min-height:52px;padding:8px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);text-align:left}
+.pick .box{width:24px;height:24px;border-radius:7px;border:2px solid var(--muted);display:grid;place-items:center;transition:background .2s,border-color .2s}
+.pick[aria-checked="true"] .box{background:var(--accent);border-color:var(--accent)}
+.pick .box svg{width:14px;height:14px;color:var(--accent-ink);opacity:0;transition:opacity .2s}
+.pick[aria-checked="true"] .box svg{opacity:1}
+.pick b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick small{color:var(--muted);font-size:.8rem}
+.newlist{display:flex;gap:8px;margin-top:12px}
+.newlist input{flex:1;min-width:0;min-height:46px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-size:1rem}
+.newlist .btn{min-height:46px;font-size:.92rem;padding:0 16px}
+.sheet-done{width:100%;margin-top:14px}
+.toast button{margin-left:10px;border:0;background:none;color:var(--accent);font-weight:800;padding:0}
+/* lists page */
+.listgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;list-style:none;padding:0;margin:14px 0 0}
+.lcard{display:grid;gap:10px;width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);text-align:left}
+.collage{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;aspect-ratio:3/2;border-radius:10px;overflow:hidden;background:var(--surface-2)}
+.collage img,.collage span{width:100%;height:100%;object-fit:cover;display:block;background:var(--surface-2)}
+.lcard b{font-weight:800;font-size:1rem;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lcard small{color:var(--muted);font-size:.82rem}
+.lhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:6px}
+.lhead h2{font-size:1.45rem;line-height:1.15;outline:none}
+.ltools{display:flex;gap:8px;flex-wrap:wrap}
+.appfilter{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0;margin-top:14px}
+.appfilter::-webkit-scrollbar{display:none}
+.appfilter .chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.appfilter .chip .n{color:var(--muted);font-weight:800}
+.appfilter .chip[aria-pressed="true"] .n{color:var(--bg);opacity:.7}
+.wrow{position:relative}
+.wrow .rec{min-height:132px}
+.seg.three{grid-template-columns:1fr 1fr 1fr;min-width:270px}
+.seg.three::before{width:calc((100% - 8px) / 3)}
+.seg.three[data-on="2"]::before{transform:translateX(200%)}
+.wrow .rec .body{padding-right:44px}
+.wrow.done .rec{opacity:.55}
+.wbtns{position:absolute;top:9px;right:9px;z-index:2;display:grid;gap:5px}
+.wbtns > *{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);color:var(--fg);text-decoration:none}
+.wbtns svg{width:16px;height:16px}
+.wbtns .tick[aria-pressed="true"]{background:color-mix(in srgb,var(--ok) 18%,var(--surface-2));color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.wbtns .trash{color:var(--muted)}
+.danger{color:var(--no)!important}
+.confirm{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--no) 40%,var(--line));background:color-mix(in srgb,var(--no) 8%,var(--surface))}
+.backup{display:flex;gap:14px;flex-wrap:wrap;margin-top:26px;color:var(--muted);font-size:.86rem;align-items:center}
 .why{font-size:.86rem;color:var(--fg);font-style:italic}
 .role{font-size:.85rem;color:var(--muted)}
 
@@ -331,6 +399,7 @@ html[data-dir="back"]::view-transition-new(root){animation-name:vt-in-back}
       <img class="mark" src="/icons/logo-128.png" srcset="/icons/logo-128.png 1x, /icons/logo-256.png 2x" width="48" height="48" alt="">
       <h1>OTT <span>Finder</span></h1>
     </button>
+    <button class="lists-btn press" id="lists-btn" aria-label="Your watchlists"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1z"/></svg>Lists <span class="count" id="lists-count" hidden>0</span></button>
   </header>
   <p class="sub">Where to watch any movie or series in India, and whether it costs extra.</p>
 
@@ -450,10 +519,12 @@ async function api(path) {
   if (!r.ok) throw new Error(j.error || "Something went wrong. Check your connection and try again.");
   return j;
 }
-function toast(t) {
+function toast(t, action) {
+  document.querySelectorAll(".toast").forEach((x) => x.remove());
   const el = document.createElement("div");
   el.className = "toast"; el.setAttribute("role", "status"); el.textContent = t;
-  document.body.append(el); setTimeout(() => el.remove(), 2200);
+  if (action) { const b = document.createElement("button"); b.textContent = action.label; b.onclick = () => { el.remove(); action.run(); }; el.append(b); }
+  document.body.append(el); setTimeout(() => el.remove(), action ? 4500 : 2200);
 }
 // Images fade in once loaded; a broken image becomes a soft placeholder.
 document.addEventListener("load", (e) => { if (e.target.tagName === "IMG") e.target.classList.add("in"); }, true);
@@ -497,6 +568,9 @@ function parse(hash) {
   if (m) return { v: m[1], q: decodeURIComponent(m[2]) };
   m = hash.match(/^#\/(movie|tv)\/(\d+)$/);
   if (m) return { v: "title", type: m[1], id: +m[2] };
+  if (hash === "#/lists") return { v: "lists" };
+  m = hash.match(/^#\/list\/([\w-]+)$/);
+  if (m) return { v: "list", id: m[1] };
   m = hash.match(/^#\/person\/(\d+)(?:\/(actor|director))?$/);
   if (m) return { v: "person", id: +m[1], role: m[2] || "" };
   return { v: "home" };
@@ -505,6 +579,8 @@ const hashOf = (s) =>
   s.v === "search" || s.v === "ask" ? `#/${s.v}/${encodeURIComponent(s.q)}`
   : s.v === "title" ? `#/${s.type}/${s.id}`
   : s.v === "person" ? `#/person/${s.id}${s.role ? "/" + s.role : ""}`
+  : s.v === "lists" ? "#/lists"
+  : s.v === "list" ? `#/list/${s.id}`
   : location.pathname;
 let depth = 0, homeY = 0;
 function transition(fn, dir = "forward") {
@@ -530,6 +606,8 @@ function render(s) {
   if (s.v === "ask") return showAsk(s.q);
   if (s.v === "title") return showTitle(s.type, s.id);
   if (s.v === "person") return showPerson(s.id, s.role);
+  if (s.v === "lists") return showLists();
+  if (s.v === "list") return showList(s.id);
   page.hidden = true; page.innerHTML = ""; home.hidden = false; q.value = ""; syncClear();
   renderRecent(); renderTry();
   document.title = "OTT Finder";
@@ -701,7 +779,7 @@ async function showSearch(term) {
         <button class="card press" data-type="${r.type}" data-id="${r.id}">
           ${poster(r.poster)}
           <span><b>${esc(r.title)}</b><br><span class="tag">${typeLabel(r.type)}${r.year ? " · " + r.year : ""}</span></span>
-        </button><a class="trl" href="${ytSearch(r.title, r.year)}" target="_blank" rel="noopener" aria-label="Watch the ${esc(r.title)} trailer on YouTube">${PLAY}Trailer</a></li>`).join("")}</ul></section>` : ""}</div>`);
+        </button><div class="cardlinks"><a class="trl" href="${ytSearch(r.title, r.year)}" target="_blank" rel="noopener" aria-label="Watch the ${esc(r.title)} trailer on YouTube">${PLAY}Trailer</a>${saveBtn(r, "svl")}</div></li>`).join("")}</ul></section>` : ""}</div>`);
     wireBack(); wirePeople();
     page.querySelectorAll(".card").forEach((b) => (b.onclick = () => go({ v: "title", type: b.dataset.type, id: +b.dataset.id })));
     $("to-ai").onclick = () => go({ v: "ask", q: term });
@@ -730,7 +808,7 @@ async function showPerson(id, role) {
     const both = j.roles.actor && j.roles.director;
     const draw = () => {
       const rows = list();
-      $("plist").innerHTML = rows.length ? `<ol class="recs two reveal">${rows.map((r, i) => `<li class="has-tr" ${delay(i)}>${trBtn(r)}
+      $("plist").innerHTML = rows.length ? `<ol class="recs two reveal">${rows.map((r, i) => `<li class="has-tr" ${delay(i)}>${trBtn(r)}${saveBtn(r)}
         <button class="rec norank press" data-type="${r.type}" data-id="${r.id}">
           ${poster(r.poster)}
           <span class="body">
@@ -845,6 +923,7 @@ async function showTitle(type, id) {
       </div>
       <div class="actions">
         <a class="press primary" href="${t.trailer || ytSearch(t.title, t.year)}" target="_blank" rel="noopener">${PLAY}Watch trailer on YouTube</a>
+        ${saveBtn({ type: t.type, id: t.id, title: t.title, year: t.year, poster: t.poster }, "press savebig")}
         <button class="press" type="button" id="share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg>Share</button>
       </div>
       ${t.summary.kind === "theatre"
@@ -905,7 +984,7 @@ async function showAsk(term) {
     const j = await apiPost("/api/ask", { q: term });
     if (n !== askSeq) return;
     remember(term);
-    const rows = j.results.map((r, i) => `<li class="has-tr" ${delay(i)}>${trBtn(r)}
+    const rows = j.results.map((r, i) => `<li class="has-tr" ${delay(i)}>${trBtn(r)}${saveBtn(r)}
       <button class="rec norank press" data-type="${r.type}" data-id="${r.id}">
         ${poster(r.poster)}
         <span class="body">
@@ -991,6 +1070,264 @@ micBtn.addEventListener("click", async () => {
   rec.start(); micState("listening"); announce("Listening. Tap the button again when you're done.");
 });
 micState("idle");
+
+
+/* ============ watchlists (kept on this device) ============ */
+const BOOK = (on) => on
+  ? `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1z"/></svg>`
+  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1z"/></svg>`;
+const CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`;
+const TRASH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>`;
+const WL = {
+  data() {
+    const d = store.get("lists", null);
+    if (d && Array.isArray(d.lists) && d.lists.length) return d;
+    return { lists: [{ id: "watchlist", name: "Watchlist", items: [], created: Date.now() }] };
+  },
+  save(d) { store.set("lists", d); updateListsBadge(); },
+  lists() { return this.data().lists; },
+  get(id) { return this.lists().find((l) => l.id === id); },
+  listsWith(key) { return this.lists().filter((l) => l.items.some((it) => it.key === key)).map((l) => l.id); },
+  toggle(listId, item) {
+    const d = this.data(), l = d.lists.find((x) => x.id === listId);
+    const i = l.items.findIndex((it) => it.key === item.key);
+    if (i >= 0) l.items.splice(i, 1); else l.items.unshift({ ...item, added: Date.now(), watched: false });
+    this.save(d); return i < 0;
+  },
+  create(name) {
+    const d = this.data();
+    const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 30) + "-" + Date.now().toString(36).slice(-4);
+    d.lists.push({ id, name: name.slice(0, 40), items: [], created: Date.now() });
+    this.save(d); return id;
+  },
+  rename(id, name) { const d = this.data(); const l = d.lists.find((x) => x.id === id); if (l) l.name = name.slice(0, 40); this.save(d); },
+  remove(id) { const d = this.data(); d.lists = d.lists.filter((x) => x.id !== id); this.save(d); },
+  setWatched(id, key, on) { const d = this.data(); const it = d.lists.find((x) => x.id === id)?.items.find((x) => x.key === key); if (it) it.watched = on; this.save(d); },
+  dropItem(id, key) { const d = this.data(); const l = d.lists.find((x) => x.id === id); if (l) l.items = l.items.filter((x) => x.key !== key); this.save(d); },
+};
+function updateListsBadge() {
+  const n = new Set(WL.lists().flatMap((l) => l.items.map((i) => i.key))).size;
+  $("lists-count").hidden = !n; $("lists-count").textContent = n;
+  $("lists-btn").setAttribute("aria-label", n ? `Your watchlists, ${n} saved` : "Your watchlists");
+}
+const ITEMS = new Map();
+function reg(r) {
+  const key = `${r.type}:${r.id}`;
+  ITEMS.set(key, { key, type: r.type, id: r.id, title: r.title, year: r.year || "", poster: r.poster || null });
+  return key;
+}
+function saveBtn(r, cls = "svb") {
+  const key = reg(r), on = WL.listsWith(key).length > 0;
+  const big = cls.includes("savebig"), small = cls === "svl";
+  return `<button type="button" class="${cls}" data-save="${key}" aria-pressed="${on}" aria-label="${on ? "Saved" : "Save"}: ${esc(r.title)}. Choose watchlists">${BOOK(on)}${big ? `<span>${on ? "Saved" : "Save"}</span>` : small ? `<span>${on ? "Saved" : "Save"}</span>` : ""}</button>`;
+}
+function syncSaveButtons(key) {
+  const on = WL.listsWith(key).length > 0;
+  document.querySelectorAll(`[data-save="${key}"]`).forEach((b) => {
+    b.setAttribute("aria-pressed", String(on));
+    const label = b.querySelector("span");
+    b.innerHTML = BOOK(on) + (label ? `<span>${on ? "Saved" : "Save"}</span>` : "");
+    b.setAttribute("aria-label", `${on ? "Saved" : "Save"}: ${ITEMS.get(key)?.title || ""}. Choose watchlists`);
+  });
+}
+// Tap once: saves to your first list. Tap a saved title: choose lists.
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-save]");
+  if (!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const key = b.dataset.save, item = ITEMS.get(key);
+  if (!item) return;
+  if (WL.listsWith(key).length) return openSheet(item);
+  const first = WL.lists()[0];
+  WL.toggle(first.id, item); syncSaveButtons(key);
+  toast(`Saved to ${first.name}`, { label: "Change", run: () => openSheet(item) });
+  announce(`Saved ${item.title} to ${first.name}`);
+}, true);
+
+let sheetReturn = null;
+function openSheet(item) {
+  closeSheet();
+  sheetReturn = document.activeElement;
+  const bg = document.createElement("div"); bg.className = "sheet-bg"; bg.id = "sheet-bg";
+  const sh = document.createElement("div"); sh.className = "sheet"; sh.id = "sheet";
+  sh.setAttribute("role", "dialog"); sh.setAttribute("aria-modal", "true"); sh.setAttribute("aria-labelledby", "sheet-title");
+  const draw = () => {
+    const inLists = WL.listsWith(item.key);
+    sh.innerHTML = `<div class="grab" aria-hidden="true"></div>
+      <h2 id="sheet-title">Save “${esc(item.title)}”</h2>
+      <p class="sub2">Pick one or more watchlists.</p>
+      <ul class="picks">${WL.lists().map((l) => `<li><button type="button" class="pick" role="checkbox" aria-checked="${inLists.includes(l.id)}" data-l="${l.id}">
+        <span class="box">${CHECK}</span><b>${esc(l.name)}</b><small>${l.items.length} title${l.items.length === 1 ? "" : "s"}</small></button></li>`).join("")}</ul>
+      <form class="newlist" id="sheet-new"><label class="sr-only" for="sheet-name">New watchlist name</label>
+        <input id="sheet-name" placeholder="New list, e.g. Weekend movies" maxlength="40" autocomplete="off"><button class="btn" type="submit">Create</button></form>
+      <button class="btn ghost sheet-done" type="button" id="sheet-done">Done</button>`;
+    sh.querySelectorAll(".pick").forEach((b) => (b.onclick = () => {
+      const added = WL.toggle(b.dataset.l, item);
+      announce(`${added ? "Added to" : "Removed from"} ${WL.get(b.dataset.l).name}`);
+      draw(); syncSaveButtons(item.key); sh.querySelector(`[data-l="${b.dataset.l}"]`)?.focus();
+    }));
+    sh.querySelector("#sheet-new").onsubmit = (e) => {
+      e.preventDefault();
+      const input = sh.querySelector("#sheet-name"), name = input.value.trim();
+      if (!name) { input.focus(); return; }
+      const id = WL.create(name); WL.toggle(id, item);
+      announce(`Created ${name} and added ${item.title}`);
+      draw(); syncSaveButtons(item.key);
+    };
+    sh.querySelector("#sheet-done").onclick = closeSheet;
+  };
+  draw();
+  bg.onclick = closeSheet;
+  sh.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeSheet();
+    if (e.key === "Tab") { // keep focus inside the sheet
+      const f = [...sh.querySelectorAll("button,input")]; const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+  document.body.append(bg, sh);
+  sh.querySelector(".pick")?.focus();
+}
+function closeSheet() {
+  $("sheet")?.remove(); $("sheet-bg")?.remove();
+  if (sheetReturn && document.contains(sheetReturn)) sheetReturn.focus();
+  sheetReturn = null;
+  if (parse(location.hash).v === "list") showList(parse(location.hash).id, true);
+  if (parse(location.hash).v === "lists") showLists();
+}
+
+$("lists-btn").addEventListener("click", () => go({ v: "lists" }));
+
+function showLists() {
+  document.title = "Watchlists · OTT Finder";
+  const lists = WL.lists();
+  showPage(`<div class="resultspage">${backBtn}
+    <div class="lhead"><h2 tabindex="-1">Your watchlists</h2></div>
+    <ul class="listgrid reveal">${lists.map((l, i) => {
+      const posters = l.items.slice(0, 3);
+      const watched = l.items.filter((x) => x.watched).length;
+      return `<li ${delay(i)}><button class="lcard press" data-list="${l.id}">
+        <span class="collage">${[0, 1, 2].map((k) => posters[k]?.poster ? `<img class="fade" src="${posters[k].poster}" alt="">` : `<span></span>`).join("")}</span>
+        <span><b>${esc(l.name)}</b><br><small>${l.items.length} title${l.items.length === 1 ? "" : "s"}${watched ? ` · ${watched} watched` : ""}</small></span>
+      </button></li>`;
+    }).join("")}</ul>
+    <form class="newlist" id="new-list" style="max-width:480px;margin-top:18px"><label class="sr-only" for="new-list-name">New watchlist name</label>
+      <input id="new-list-name" placeholder="New list, e.g. Date night" maxlength="40" autocomplete="off"><button class="btn" type="submit">Create list</button></form>
+    <div class="backup"><span>Lists are saved on this device.</span>
+      <span style="display:inline-flex;gap:14px"><button class="textbtn" id="wl-export">Back up</button>
+      <label class="textbtn" for="wl-import" style="cursor:pointer">Restore</label></span><input id="wl-import" type="file" accept="application/json" hidden></div>
+  </div>`);
+  wireBack();
+  page.querySelectorAll("[data-list]").forEach((b) => (b.onclick = () => go({ v: "list", id: b.dataset.list })));
+  $("new-list").onsubmit = (e) => {
+    e.preventDefault();
+    const name = $("new-list-name").value.trim();
+    if (!name) { $("new-list-name").focus(); return; }
+    const id = WL.create(name); toast(`Created ${name}`); go({ v: "list", id });
+  };
+  $("wl-export").onclick = () => {
+    const blob = new Blob([JSON.stringify(WL.data(), null, 2)], { type: "application/json" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = `ott-finder-watchlists-${new Date().toISOString().slice(0, 10)}.json`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast("Backup saved");
+  };
+  $("wl-import").onchange = async (e) => {
+    try {
+      const d = JSON.parse(await e.target.files[0].text());
+      if (!Array.isArray(d.lists)) throw 0;
+      WL.save(d); toast("Watchlists restored"); showLists();
+    } catch { toast("That file isn't an OTT Finder backup."); }
+  };
+  page.querySelector("h2").focus({ preventScroll: true });
+}
+
+let listView = { filter: "towatch", app: "" }, listLive = new Map(), listSeq = 0;
+async function showList(id, keepScroll) {
+  const l = WL.get(id);
+  if (!l) { showPage(`${backBtn}<div class="empty"><b>That list doesn't exist</b>It may have been deleted.</div>`); wireBack(); return; }
+  document.title = `${l.name} · OTT Finder`;
+  const y = scrollY;
+  const draw = () => {
+    const live = (it) => listLive.get(it.key) || it;
+    let items = l.items.filter((it) => listView.filter === "all" || (listView.filter === "watched") === !!it.watched);
+    const apps = {};
+    for (const it of items) for (const a of live(it).streamOn || []) apps[a] = (apps[a] || 0) + 1;
+    if (listView.app && !apps[listView.app]) listView.app = "";
+    if (listView.app) items = items.filter((it) => (live(it).streamOn || []).includes(listView.app));
+    const toWatch = l.items.filter((x) => !x.watched).length;
+    showPage(`<div class="resultspage">${backBtn}
+      <div class="lhead"><div><span class="label">Watchlist</span><h2 tabindex="-1">${esc(l.name)}</h2>
+        <span class="tag">${l.items.length} title${l.items.length === 1 ? "" : "s"} · ${toWatch} to watch</span></div>
+        <div class="ltools"><button class="chip press" id="l-rename">Rename</button>${WL.lists().length > 1 ? `<button class="chip press danger" id="l-delete">Delete</button>` : ""}</div></div>
+      <div id="l-confirm"></div>
+      <div class="bar" style="margin-top:16px">
+        <div class="seg three" data-on="${["towatch", "watched", "all"].indexOf(listView.filter)}" id="l-seg" role="group" aria-label="Show">
+          <button data-f="towatch" aria-pressed="${listView.filter === "towatch"}">To watch</button>
+          <button data-f="watched" aria-pressed="${listView.filter === "watched"}">Watched</button>
+          <button data-f="all" aria-pressed="${listView.filter === "all"}">All</button></div>
+      </div>
+      ${Object.keys(apps).length ? `<div class="appfilter" role="group" aria-label="Filter by app">
+        <button class="chip press" data-app="" aria-pressed="${!listView.app}">Any app</button>
+        ${Object.entries(apps).sort((a, b) => b[1] - a[1]).map(([a, n]) => `<button class="chip press" data-app="${esc(a)}" aria-pressed="${listView.app === a}">On ${esc(a)} <span class="n">${n}</span></button>`).join("")}</div>` : ""}
+      ${items.length ? `<ol class="recs two ${keepScroll ? "" : "reveal"}">${items.map((it, i) => { const r = live(it); reg(r); return `<li class="wrow ${it.watched ? "done" : ""}" ${delay(i)}>
+        <div class="wbtns">
+          <button class="tick" data-tick="${it.key}" aria-pressed="${!!it.watched}" aria-label="${it.watched ? "Mark as not watched" : "Mark as watched"}: ${esc(r.title)}">${CHECK}</button>
+          <a href="${r.trailer || ytSearch(r.title, r.year)}" target="_blank" rel="noopener" aria-label="Watch the ${esc(r.title)} trailer on YouTube">${PLAY}</a>
+          <button class="trash" data-drop="${it.key}" aria-label="Remove ${esc(r.title)} from this list">${TRASH}</button>
+        </div>
+        <button class="rec norank press" data-type="${r.type}" data-id="${r.id}">
+          ${poster(r.poster)}
+          <span class="body">
+            <b>${esc(r.title)}</b><span class="tag">${typeLabel(r.type)}${r.year ? " · " + r.year : ""}</span>
+            ${ratingBadges(r.ratings)}
+            ${r.streamOn ? onLine(r.streamOn, r.theatres) : `<span class="on">Checking where to watch…</span>`}
+          </span>
+        </button></li>`; }).join("")}</ol>`
+        : `<div class="empty"><b>${l.items.length ? (listView.filter === "watched" ? "Nothing marked as watched yet" : "All caught up") : "This list is empty"}</b>${l.items.length ? "Switch to All to see everything in this list." : "Tap the bookmark on any movie or series to save it here."}</div>`}
+    </div>`);
+    wireBack(); plainRates(page);
+    page.querySelectorAll(".rec").forEach((b) => (b.onclick = () => go({ v: "title", type: b.dataset.type, id: +b.dataset.id })));
+    page.querySelectorAll("[data-f]").forEach((b) => (b.onclick = () => { listView.filter = b.dataset.f; keepScroll = true; draw(); }));
+    page.querySelectorAll("[data-app]").forEach((b) => (b.onclick = () => { listView.app = b.dataset.app; keepScroll = true; draw(); }));
+    page.querySelectorAll("[data-tick]").forEach((b) => (b.onclick = () => {
+      const it = l.items.find((x) => x.key === b.dataset.tick); it.watched = !it.watched;
+      WL.setWatched(id, it.key, it.watched); keepScroll = true; draw();
+      announce(it.watched ? "Marked as watched" : "Marked as not watched");
+    }));
+    page.querySelectorAll("[data-drop]").forEach((b) => (b.onclick = () => {
+      const it = l.items.find((x) => x.key === b.dataset.drop);
+      WL.dropItem(id, it.key); l.items = l.items.filter((x) => x.key !== it.key); keepScroll = true; draw();
+      toast(`Removed ${it.title}`, { label: "Undo", run: () => { WL.toggle(id, it); WL.setWatched(id, it.key, it.watched); showList(id, true); } });
+    }));
+    $("l-rename").onclick = () => {
+      $("l-confirm").innerHTML = `<form class="newlist" id="l-rename-f"><label class="sr-only" for="l-name">List name</label><input id="l-name" value="${esc(l.name)}" maxlength="40"><button class="btn" type="submit">Save</button></form>`;
+      $("l-name").focus(); $("l-name").select();
+      $("l-rename-f").onsubmit = (e) => { e.preventDefault(); const n = $("l-name").value.trim(); if (n) { WL.rename(id, n); l.name = n; keepScroll = true; draw(); announce("List renamed"); } };
+    };
+    $("l-delete")?.addEventListener("click", () => {
+      $("l-confirm").innerHTML = `<div class="confirm" role="alert"><span>Delete “${esc(l.name)}” and its ${l.items.length} title${l.items.length === 1 ? "" : "s"}?</span>
+        <button class="btn" id="l-del-yes" style="min-height:40px">Delete list</button><button class="textbtn" id="l-del-no">Keep it</button></div>`;
+      $("l-del-no").onclick = () => ($("l-confirm").innerHTML = "");
+      $("l-del-yes").onclick = () => { WL.remove(id); toast(`Deleted ${l.name}`); history.replaceState({ depth }, "", "#/lists"); showLists(); };
+      $("l-del-no").focus();
+    });
+    if (keepScroll) scrollTo({ top: y }); else page.querySelector("h2").focus({ preventScroll: true });
+  };
+  draw();
+  // Fetch live ratings and where-to-watch for anything we haven't checked this session.
+  const missing = l.items.filter((it) => !listLive.has(it.key));
+  if (!missing.length) return;
+  const n = ++listSeq;
+  for (let i = 0; i < missing.length; i += 40) {
+    try {
+      const { results } = await api(`/api/batch?items=${missing.slice(i, i + 40).map((x) => x.key).join(",")}`);
+      for (const r of results) listLive.set(`${r.type}:${r.id}`, r);
+    } catch { /* keep the saved details */ }
+  }
+  if (n === listSeq && parse(location.hash).v === "list" && parse(location.hash).id === id) { keepScroll = true; draw(); }
+}
+updateListsBadge();
 
 /* ============ home: filters + ranked list ============ */
 const GENRES = {
@@ -1087,7 +1424,7 @@ function renderRecs() {
   const [top, ...rest] = list;
   const meta = (r) => `${typeLabel(r.type)}${r.year ? " · " + r.year : ""}`;
   box.innerHTML = `
-    <div class="reveal"><div class="has-tr"><a class="trp" href="${top.trailer || ytSearch(top.title, top.year)}" target="_blank" rel="noopener" aria-label="Watch the ${esc(top.title)} trailer on YouTube">${PLAY}Trailer</a><button class="feature press" data-i="0">
+    <div class="reveal"><div class="has-tr"><div class="fx"><a class="trp" href="${top.trailer || ytSearch(top.title, top.year)}" target="_blank" rel="noopener" aria-label="Watch the ${esc(top.title)} trailer on YouTube">${PLAY}Trailer</a>${saveBtn(top, "svp")}</div><button class="feature press" data-i="0">
       ${top.backdrop || top.poster ? `<img class="fade" src="${top.backdrop || top.poster}" alt="">` : ""}
       <span class="in-txt">
         <span class="rank">#1 pick</span>
@@ -1097,7 +1434,7 @@ function renderRecs() {
         ${onLine(top.streamOn, top.theatres)}
       </span>
     </button></div></div>
-    <ol class="recs two reveal" start="2">${rest.map((r, i) => `<li class="has-tr" ${delay(i + 1)}>${trBtn(r)}
+    <ol class="recs two reveal" start="2">${rest.map((r, i) => `<li class="has-tr" ${delay(i + 1)}>${trBtn(r)}${saveBtn(r)}
       <button class="rec press" data-i="${i + 1}">
         <span class="n"><span class="sr-only">Number </span>${i + 2}</span>
         ${poster(r.poster)}
