@@ -380,6 +380,7 @@ html[data-dir="back"]::view-transition-new(root){animation-name:vt-in-back}
             <label class="field"><span class="label">Genre</span><select id="f-genre"></select></label>
             <label class="field"><span class="label">Released</span>
               <select id="f-since">
+                <option value="theatres">In theatres now</option>
                 <option value="6m">Last 6 months</option>
                 <option value="1y">Last year</option>
                 <option value="5y">Last 5 years</option>
@@ -996,7 +997,7 @@ const GENRES = {
   movie: [[28,"Action"],[12,"Adventure"],[16,"Animation"],[35,"Comedy"],[80,"Crime"],[99,"Documentary"],[18,"Drama"],[10751,"Family"],[14,"Fantasy"],[36,"History"],[27,"Horror"],[10402,"Music"],[9648,"Mystery"],[10749,"Romance"],[878,"Science Fiction"],[53,"Thriller"],[10752,"War"]],
   tv: [[10759,"Action & Adventure"],[16,"Animation"],[35,"Comedy"],[80,"Crime"],[99,"Documentary"],[18,"Drama"],[10751,"Family"],[10762,"Kids"],[9648,"Mystery"],[10764,"Reality"],[10765,"Sci-Fi & Fantasy"],[10768,"War & Politics"]],
 };
-const SINCE = { "6m": "Last 6 months", "1y": "Last year", "5y": "Last 5 years", all: "Any time" };
+const SINCE = { theatres: "In theatres now", "6m": "Last 6 months", "1y": "Last year", "5y": "Last 5 years", all: "Any time" };
 const DEFAULT = { type: "movie", genre: "", since: "6m", imdb: "0", rt: "0", actor: null, director: null };
 let F = { ...DEFAULT, ...store.get("filters", {}) };
 let filtersOpen = false;
@@ -1047,8 +1048,10 @@ function renderChrome() {
   });
   const kind = F.type === "tv" ? "series" : "movies";
   const who = [F.actor && `with ${F.actor.name}`, F.director && `by ${F.director.name}`].filter(Boolean).join(", ");
-  $("home-title").textContent = who ? `Best ${kind} ${who}` : F.since === "6m" ? "New & top rated" : `Top rated ${kind}`;
-  $("home-sub").textContent = `${SINCE[F.since]} · ranked by IMDb and Rotten Tomatoes`;
+  if (F.since === "theatres" && F.type === "tv") F.since = "6m"; // series don't play in cinemas
+  $("f-since").querySelector('[value="theatres"]').hidden = F.type === "tv";
+  $("home-title").textContent = who ? `Best ${kind} ${who}` : F.since === "theatres" ? "In theatres now" : F.since === "6m" ? "New & top rated" : `Top rated ${kind}`;
+  $("home-sub").textContent = F.since === "theatres" ? "Showing in Indian cinemas · ranked by IMDb and Rotten Tomatoes" : `${SINCE[F.since]} · ranked by IMDb and Rotten Tomatoes`;
 }
 
 const recSkeleton = `<div class="sk" style="aspect-ratio:16/10;max-height:440px;margin-top:16px;border-radius:24px"></div>

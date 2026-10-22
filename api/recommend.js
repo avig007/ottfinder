@@ -7,11 +7,11 @@ import { enrich, isRated, applyRatingFilters } from "./_enrich.js";
 
 const SHOW = 15;
 const CANDIDATES = 24;
-const WINDOWS = { "6m": 182, "1y": 365, "5y": 1826, all: null };
+const WINDOWS = { theatres: 60, "6m": 182, "1y": 365, "5y": 1826, all: null };
 // Minimum TMDB votes so obscure titles with a handful of votes don't crowd the list.
 const MIN_VOTES = {
-  movie: { "6m": 100, "1y": 200, "5y": 1000, all: 3000 },
-  tv: { "6m": 30, "1y": 60, "5y": 250, all: 600 },
+  movie: { theatres: 0, "6m": 100, "1y": 200, "5y": 1000, all: 3000 },
+  tv: { theatres: 30, "6m": 30, "1y": 60, "5y": 250, all: 600 },
 };
 
 const isoDaysAgo = (n) => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
@@ -27,6 +27,16 @@ async function creditsOf(personId, role, type) {
 }
 
 async function candidates({ type, genre, since, actor, director }) {
+  // "In theatres now": what's showing in Indian cinemas (movies only).
+  if (since === "theatres" && type === "movie" && !actor && !director) {
+    const pages = await Promise.all([1, 2].map((page) => tmdb("/movie/now_playing", { region: "IN", language: "en-IN", page })));
+    const seen = new Set();
+    return pages.flatMap((p) => p.results || [])
+      .filter((r) => !seen.has(r.id) && seen.add(r.id))
+      .filter((r) => !genre || (r.genre_ids || []).includes(Number(genre)))
+      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+      .slice(0, CANDIDATES);
+  }
   const days = WINDOWS[since];
   const from = days ? isoDaysAgo(days) : null;
   const today = isoDaysAgo(0);
