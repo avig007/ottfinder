@@ -9,32 +9,31 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="OTT Finder">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0807">
+<meta name="theme-color" content="#070708">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-64.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: one column on phones (wider grid on desktop). Glassy sticky search with a live dropdown;
    home = featured #1 pick over a ranked list; title and person pages open with a soft page transition. */
-/* One deliberate dark look: near-black with ember red, burnt orange and leather brown.
-   Type: Times New Roman for headings, Manrope for everything else (clean, minimal). */
+/* One deliberate dark look to match the logo: true black, brushed silver, and a single red accent.
+   Type: Manrope throughout, with heavier weights for headings, so everything reads as one family. */
 :root{
   color-scheme:dark;
-  --bg:#0a0807; --surface:#141010; --surface-2:#1f1814; --fg:#f6efe8; --muted:#ab9c8f; --line:#2d231d;
-  --accent:#ff8a3d; --accent-ink:#1a0a03; --accent-soft:#2e1a10;
-  --ember:#e0442e; --brown:#8b5a3c;
-  --grad:linear-gradient(120deg,#8c2a17 0%,#b23a1d 50%,#c24a1f 100%);
-  --grad-bright:linear-gradient(100deg,#ff5a3c 0%,#ff8a3d 50%,#f2b06a 100%);
-  --glow-a:rgb(224 68 46 / .24); --glow-b:rgb(255 138 61 / .16); --glow-c:rgb(139 90 60 / .3);
-  --ok:#4fd39a; --warn:#ffb862; --no:#ff7a6b;
-  --imdb:#f5c518; --fresh:#ff6f5a; --rotten:#93d661;
-  --on-image:#ffffff; --scrim:rgb(8 5 4 / .94);
-  --glass:rgb(10 8 7 / .8); --thumb:#3b2c23;
-  --shadow:0 1px 2px rgb(0 0 0 / .4), 0 12px 32px rgb(0 0 0 / .4);
-  --display:"Times New Roman", Times, Tinos, serif;
+  --bg:#070708; --surface:#111113; --surface-2:#1b1b1e; --fg:#f3f3f5; --muted:#a2a2aa; --line:#29292e;
+  --silver:#d9dade;
+  --accent:#ff4d4d; --accent-ink:#1a0505; --accent-soft:#2a0f11;
+  --grad:linear-gradient(120deg,#8e1616 0%,#b31d1d 55%,#c62828 100%);
+  --glow-a:rgb(230 40 40 / .2); --glow-b:rgb(255 255 255 / .05); --glow-c:rgb(200 30 30 / .1);
+  --ok:#4fd39a; --warn:#f2c94c; --no:#ff7a7a;
+  --imdb:#f5c518; --fresh:#ff6b6b; --rotten:#93d661;
+  --on-image:#ffffff; --scrim:rgb(5 5 6 / .94);
+  --glass:rgb(7 7 8 / .8); --thumb:#2f2f34;
+  --shadow:0 1px 2px rgb(0 0 0 / .45), 0 12px 32px rgb(0 0 0 / .45);
+  --display:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
   --body:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
   --r:18px; --ease:cubic-bezier(.2,.8,.2,1);
 }
@@ -52,7 +51,7 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 a{color:var(--accent)}
 :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:8px}
 [tabindex="-1"]:focus{outline:none}
-h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;letter-spacing:-.005em}
+h1,h2,h3{font-family:var(--display);font-weight:800;margin:0;text-wrap:balance;letter-spacing:-.025em}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .wrap{max-width:620px;margin:0 auto;position:relative;isolation:isolate}
 /* soft aurora glow behind the header */
@@ -67,11 +66,9 @@ h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;l
 /* ---------- header ---------- */
 header.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:20px 4px;view-transition-name:brand}
 .brand{display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;text-align:left}
-.brand svg{width:42px;height:42px;flex:none;border-radius:12px;box-shadow:0 6px 22px var(--glow-a)}
-.brand h1{font-size:1.95rem;font-weight:400;line-height:1;letter-spacing:-.01em}
-.brand h1 span{font-style:italic;padding-right:.08em;background:var(--grad-bright);-webkit-background-clip:text;background-clip:text;color:transparent}
-.brand .dot{animation:blink 3.2s ease-in-out infinite}
-@keyframes blink{0%,70%,100%{opacity:1}80%{opacity:.25}}
+.brand .mark{width:48px;height:48px;flex:none;border-radius:12px;display:block}
+.brand h1{font-size:1.5rem;font-weight:800;line-height:1;letter-spacing:-.03em}
+.brand h1 span{color:var(--accent)}
 .sub{color:var(--muted);font-size:.92rem;margin:8px 0 0;max-width:46ch}
 
 /* ---------- search ---------- */
@@ -122,7 +119,7 @@ form.search{display:flex;gap:8px;max-width:620px;margin:0;position:relative}
 .chip.ai{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));color:var(--accent)}
 .spark{width:14px;height:14px;flex:none}
 .textbtn{border:0;background:none;color:var(--accent);font-weight:700;padding:8px 4px;font-size:.9rem;min-height:36px;display:inline-flex;align-items:center;gap:6px}
-.row{display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.row{display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none;padding:2px 24px 2px 0;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)}
 .row::-webkit-scrollbar{display:none}
 .row .label{flex:none;margin-right:2px}
 .ph{background:linear-gradient(135deg,var(--surface-2),var(--line))}
@@ -141,7 +138,7 @@ img.fade.in{opacity:1}
 .on.yes{color:var(--ok)} .on.yes::before{background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 20%,transparent)}
 .status{color:var(--muted);padding:18px 2px;margin:0}
 .empty{text-align:center;padding:40px 16px;color:var(--muted)}
-.empty b{display:block;color:var(--fg);font-family:var(--display);font-weight:400;font-size:1.6rem;margin-bottom:4px}
+.empty b{display:block;color:var(--fg);font-family:var(--display);font-weight:800;font-size:1.15rem;margin-bottom:4px}
 @keyframes shimmer{to{background-position:-200% 0}}
 .sk{background:linear-gradient(90deg,var(--surface-2) 25%,var(--line) 50%,var(--surface-2) 75%);background-size:200% 100%;animation:shimmer 1.3s linear infinite;border-radius:12px}
 /* items rise in, one after another */
@@ -156,7 +153,7 @@ img.fade.in{opacity:1}
 /* ---------- home ---------- */
 .home-top{display:grid;gap:10px;margin-top:6px}
 .homehead{margin:26px 0 14px}
-.homehead h2{font-size:2.05rem;line-height:1.05}
+.homehead h2{font-size:1.6rem;line-height:1.15}
 .homehead p{margin:4px 0 0;color:var(--muted);font-size:.88rem}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .seg{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border-radius:999px;padding:4px;min-width:200px}
@@ -194,12 +191,12 @@ img.fade.in{opacity:1}
 .feature::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 28%,var(--scrim) 94%)}
 .feature .in-txt{position:absolute;inset:auto 0 0 0;z-index:1;padding:18px 20px;display:grid;gap:7px}
 .feature .rank{font-family:var(--body);font-weight:800;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;background:var(--grad);color:#fff;padding:4px 11px;border-radius:999px;justify-self:start}
-.feature .ftitle{font-family:var(--display);font-size:2.2rem;font-weight:400;line-height:1;letter-spacing:-.005em;color:var(--on-image);text-wrap:balance}
+.feature .ftitle{font-family:var(--display);font-size:1.75rem;font-weight:800;line-height:1.08;letter-spacing:-.03em;color:var(--on-image);text-wrap:balance}
 .feature .tag{color:rgb(255 255 255 / .8)}
 .feature .rate{background:rgb(255 255 255 / .16);color:var(--on-image);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .feature .rate i{color:rgb(255 255 255 / .75)}
 .feature .rate.imdb b{color:#f5c518}
-.feature .rate.rt b{color:#ff8a75}
+.feature .rate.rt b{color:#ff6b6b}
 .feature .rate.rt.rotten b{color:#a6e27a}
 .feature .on{color:rgb(255 255 255 / .85)} .feature .on::before{background:rgb(255 255 255 / .6)}
 .feature .on.yes{color:#7ef0bd} .feature .on.yes::before{background:#7ef0bd}
@@ -207,7 +204,7 @@ img.fade.in{opacity:1}
 .recs{display:grid;gap:10px;margin-top:12px;list-style:none;padding:0}
 .rec{display:grid;grid-template-columns:30px 72px minmax(0,1fr);gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 14px 8px 8px;width:100%}
 .rec.norank{grid-template-columns:72px minmax(0,1fr);padding-left:8px}
-.rec .n{font-family:var(--display);font-weight:400;font-size:1.7rem;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.rec .n{font-family:var(--display);font-weight:800;font-size:1.2rem;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
 .rec .poster{width:72px;border-radius:10px}
 .rec .body{display:grid;gap:6px;min-width:0}
 .rec b{font-weight:700;line-height:1.25;font-size:1.02rem}
@@ -227,7 +224,7 @@ img.fade.in{opacity:1}
 
 /* ---------- search results ---------- */
 .pagehead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
-.pagehead h2{font-size:1.75rem;line-height:1.1}
+.pagehead h2{font-size:1.35rem;line-height:1.2}
 .switch{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:4px;color:var(--muted);font-size:.9rem}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:18px 12px;list-style:none;padding:0;margin:12px 0 0}
 .card{display:grid;gap:8px;width:100%;border:0;background:none;padding:0;text-align:left}
@@ -252,7 +249,7 @@ img.fade.in{opacity:1}
 .thead{display:grid;grid-template-columns:118px minmax(0,1fr);gap:16px;align-items:end;margin-top:-76px;position:relative;z-index:1}
 .thead.nobd{margin-top:8px}
 .thead .poster{border-radius:14px;box-shadow:0 14px 34px rgb(0 0 0 / .35);border:3px solid var(--bg)}
-.thead h2{font-size:2.2rem;line-height:1}
+.thead h2{font-size:1.7rem;line-height:1.1}
 .thead .meta{display:grid;gap:8px}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .actions a,.actions button{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border-radius:999px;font-weight:700;font-size:.92rem;text-decoration:none;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
@@ -266,7 +263,7 @@ img.fade.in{opacity:1}
 .offers{display:grid;gap:10px;list-style:none;padding:0;margin:0}
 .offer{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:10px}
 .offer .head{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center}
-.logo{width:44px;height:44px;border-radius:12px;object-fit:cover;display:grid;place-items:center;font-family:var(--display);font-weight:400;color:var(--accent);background:var(--accent-soft);font-size:1.4rem}
+.logo{width:44px;height:44px;border-radius:12px;object-fit:cover;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:var(--accent);background:var(--accent-soft);font-size:1.1rem}
 .offer .head b{font-family:var(--body);font-size:1.05rem;font-weight:700;line-height:1.15}
 .pill{font-size:.76rem;font-weight:800;padding:4px 10px;border-radius:999px;white-space:nowrap}
 .pill.included,.pill.free{color:var(--ok);background:color-mix(in srgb,var(--ok) 13%,transparent)}
@@ -278,7 +275,7 @@ img.fade.in{opacity:1}
 .price span{color:var(--muted);font-size:.78rem}
 .open{justify-self:start;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:.92rem;text-decoration:none;min-height:36px}
 .about p{margin:0;max-width:62ch}
-.about .tl{font-family:var(--display);font-style:italic;font-weight:400;font-size:1.35rem;margin-bottom:8px}
+.about .tl{font-family:var(--display);font-weight:700;font-size:1.05rem;margin-bottom:8px;color:var(--silver)}
 .about .ov{color:var(--muted)}
 .abroad{margin:0;padding-left:18px}
 .abroad li{margin-bottom:4px}
@@ -287,7 +284,7 @@ img.fade.in{opacity:1}
 .phead{display:grid;grid-template-columns:116px minmax(0,1fr);gap:18px;align-items:center;margin-top:6px}
 .phead .face{width:116px;height:116px;border-radius:50%;padding:4px;background:var(--grad);box-shadow:0 12px 32px var(--glow-b)}
 .phead .face img,.phead .face .ph{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;border:4px solid var(--bg)}
-.phead h2{font-size:2.2rem;line-height:1}
+.phead h2{font-size:1.7rem;line-height:1.1}
 .phead .tag{display:block;margin-top:6px}
 .bio{margin:16px 0 0;color:var(--muted);max-width:62ch;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .bio.full{display:block}
@@ -310,7 +307,7 @@ html[data-dir="back"]::view-transition-new(root){animation-name:vt-in-back}
   .recs.two{grid-template-columns:1fr 1fr}
   .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
   .feature{aspect-ratio:21/9;max-height:380px}
-  .feature .ftitle{font-size:3rem}
+  .feature .ftitle{font-size:2.4rem}
 }
 @media (max-width:370px){.filters{grid-template-columns:1fr}.thead{grid-template-columns:96px minmax(0,1fr)}.thead h2{font-size:1.45rem}.phead{grid-template-columns:92px minmax(0,1fr)}.phead .face{width:92px;height:92px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}img.fade{opacity:1}}
@@ -321,17 +318,7 @@ html[data-dir="back"]::view-transition-new(root){animation-name:vt-in-back}
 <div class="wrap">
   <header class="top">
     <button class="brand" id="logo" aria-label="OTT Finder, go to home">
-      <svg viewBox="0 0 512 512" aria-hidden="true">
-        <defs>
-          <radialGradient id="lg-bg" cx="30%" cy="22%" r="95%"><stop offset="0" stop-color="#3a1a10"/><stop offset=".55" stop-color="#170c08"/><stop offset="1" stop-color="#0a0605"/></radialGradient>
-          <linearGradient id="lg-beam" x1="96" y1="96" x2="420" y2="420" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f2b06a"/><stop offset=".45" stop-color="#ff7a3d"/><stop offset="1" stop-color="#c8321f"/></linearGradient>
-        </defs>
-        <rect width="512" height="512" rx="116" fill="url(#lg-bg)"/>
-        <path d="M228 112 A116 116 0 1 1 146 146" fill="none" stroke="url(#lg-beam)" stroke-width="30" stroke-linecap="round"/>
-        <path d="M314 314 L388 388" stroke="url(#lg-beam)" stroke-width="40" stroke-linecap="round"/>
-        <path d="M206 178 Q206 166 217 172 L284 214 Q294 221 284 228 L217 270 Q206 276 206 264 Z" fill="#fff"/>
-        <circle class="dot" cx="176" cy="120" r="13" fill="#f2b06a"/>
-      </svg>
+      <img class="mark" src="/icons/logo-128.png" srcset="/icons/logo-128.png 1x, /icons/logo-256.png 2x" width="48" height="48" alt="">
       <h1>OTT <span>Finder</span></h1>
     </button>
   </header>
@@ -892,7 +879,7 @@ async function showAsk(term) {
   const n = ++askSeq;
   q.value = term; syncClear();
   document.title = `${term} · OTT Finder`;
-  showPage(`<div class="resultspage">${backBtn}<div class="aihead"><span class="label" style="color:var(--accent);display:inline-flex;gap:6px;align-items:center">${SPARK} AI search</span><h2 tabindex="-1" style="font-size:1.75rem;line-height:1.1;margin-top:6px">Working out “${esc(term)}”…</h2></div>
+  showPage(`<div class="resultspage">${backBtn}<div class="aihead"><span class="label" style="color:var(--accent);display:inline-flex;gap:6px;align-items:center">${SPARK} AI search</span><h2 tabindex="-1" style="font-size:1.35rem;line-height:1.2;margin-top:6px">Working out “${esc(term)}”…</h2></div>
     <div class="recs">${Array.from({ length: 4 }, () => `<div class="sk" style="height:126px;border-radius:18px"></div>`).join("")}</div></div>`);
   wireBack(); announce(`Asking AI: ${term}`);
   try {
@@ -912,7 +899,7 @@ async function showAsk(term) {
     showPage(`<div class="resultspage">${backBtn}
       <div class="aihead">
         <span class="label" style="color:var(--accent);display:inline-flex;gap:6px;align-items:center">${SPARK} AI search</span>
-        <h2 tabindex="-1" style="font-size:1.75rem;line-height:1.1;margin-top:6px">${esc(j.understood || term)}</h2>
+        <h2 tabindex="-1" style="font-size:1.35rem;line-height:1.2;margin-top:6px">${esc(j.understood || term)}</h2>
         ${j.chips.length ? `<div class="chips" style="margin-top:10px">${j.chips.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>` : ""}
         <div class="switch" style="margin-top:8px">Looking for a title called “${esc(term)}”? <button class="textbtn" id="to-search">Search titles</button></div>
       </div>
