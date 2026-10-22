@@ -4,9 +4,17 @@ import { ratingsFor, combinedScore } from "./_omdb.js";
 
 const dateOf = (r) => r.release_date || r.first_air_date || "";
 
+// The official YouTube trailer when TMDB has one; otherwise a YouTube search for it.
+export function trailerUrl(videos = [], title = "", year = "") {
+  const vids = videos.filter((v) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser"));
+  vids.sort((a, b) => (b.official - a.official) || ((b.type === "Trailer") - (a.type === "Trailer")));
+  if (vids[0]) return `https://www.youtube.com/watch?v=${vids[0].key}`;
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${year} official trailer`.trim())}`;
+}
+
 export async function enrich(type, r) {
   try {
-    const d = await tmdb(`/${type}/${r.id}`, { append_to_response: "external_ids,watch/providers" });
+    const d = await tmdb(`/${type}/${r.id}`, { append_to_response: "external_ids,watch/providers,videos" });
     const ratings = await ratingsFor(d.imdb_id || d.external_ids?.imdb_id);
     const IN = d["watch/providers"]?.results?.IN || {};
     return {
@@ -23,6 +31,7 @@ export async function enrich(type, r) {
         .map((p) => p.provider_name)
         .filter((n) => !/channel/i.test(n))
         .map((n) => n.replace(/\s+with ads$/i, "").replace(/^Amazon Prime Video$/, "Prime Video")))].slice(0, 2),
+      trailer: trailerUrl(d.videos?.results, d.title || d.name, dateOf(d).slice(0, 4)),
       score: combinedScore(ratings, d.vote_average ?? r.vote_average),
     };
   } catch {

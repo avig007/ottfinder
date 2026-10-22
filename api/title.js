@@ -2,6 +2,7 @@ import { tmdb, send, img } from "./_tmdb.js";
 import { ratingsFor } from "./_omdb.js";
 import { justwatchOffers } from "./_justwatch.js";
 import { groupByApp, verdict, classify } from "./_apps.js";
+import { trailerUrl } from "./_enrich.js";
 
 const COUNTRY = new Intl.DisplayNames(["en"], { type: "region" });
 
@@ -82,9 +83,7 @@ export default async function handler(req, res) {
     }));
 
     // Trailer on YouTube, official ones first.
-    const vids = (d.videos?.results || []).filter((v) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser"));
-    vids.sort((a, b) => (b.official - a.official) || ((b.type === "Trailer") - (a.type === "Trailer")));
-    const trailer = vids[0] ? `https://www.youtube.com/watch?v=${vids[0].key}` : null;
+    const trailer = trailerUrl(d.videos?.results, title, rawDate.slice(0, 4));
     const summary = verdict(apps);
     const availableInIndia = apps.length > 0;
 
