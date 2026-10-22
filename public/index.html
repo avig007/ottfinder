@@ -259,6 +259,16 @@ img.fade.in{opacity:1}
 .verdict svg{flex:none;width:22px;height:22px;margin-top:-1px}
 .verdict.included{color:var(--ok);background:color-mix(in srgb,var(--ok) 11%,var(--surface))}
 .verdict.extra{color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--surface))}
+.verdict.theatre{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.verdict .vsub{display:block;margin-top:4px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.verdict .vbtn{display:inline-flex;align-items:center;gap:6px;margin-top:12px;min-height:38px;padding:0 14px;border-radius:999px;background:var(--grad);color:#fff;font-weight:700;font-size:.88rem;text-decoration:none}
+.cinema{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px;padding:12px 14px;border-radius:16px;background:var(--surface);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line))}
+.cinema span{display:inline-flex;align-items:center;gap:10px;font-weight:700}
+.cinema svg{width:20px;height:20px;color:var(--accent);flex:none}
+.cinema a{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 14px;border-radius:999px;background:var(--grad);color:#fff;font-weight:700;font-size:.88rem;text-decoration:none}
+.cine{display:inline-flex;align-items:center;gap:6px;justify-self:start;font-size:.76rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);padding:3px 9px;border-radius:999px}
+.cine svg{width:12px;height:12px}
+.feature .cine{background:rgb(0 0 0 / .45);color:#ff8f8f;border-color:rgb(255 120 120 / .4)}
 .verdict.no{color:var(--no);background:color-mix(in srgb,var(--no) 11%,var(--surface))}
 .offers{display:grid;gap:10px;list-style:none;padding:0;margin:0}
 .offer{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:10px}
@@ -469,9 +479,11 @@ function ratingBadges(r) {
     ? `<span class="rate rt ${r.rt < 60 ? "rotten" : ""}" aria-label="Rotten Tomatoes ${r.rt} percent${r.rt < 60 ? ", rotten" : ", fresh"}"><i>RT</i><b>${r.rt}%</b></span>` : "";
   return `<div class="ratings">${imdb}${rt}</div>`;
 }
-const onLine = (apps) => apps.length
+const TICKET = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M13 6v2M13 11v2M13 16v2"/></svg>`;
+const cineBadge = (t) => t === "now" ? `<span class="cine">${TICKET}In theatres now</span>` : t === "soon" ? `<span class="cine">${TICKET}Coming to theatres</span>` : "";
+const onLine = (apps, theatres) => cineBadge(theatres) + (apps.length
   ? `<span class="on yes">Included with ${esc(apps.join(", "))}</span>`
-  : `<span class="on">Not in any subscription</span>`;
+  : `<span class="on">${theatres === "now" ? "Not on OTT yet" : "Not in any subscription"}</span>`);
 const PLAY = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.4-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>`;
 const ytSearch = (title, year) => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${year || ""} official trailer`.replace(/\s+/g, " "))}`;
 const trBtn = (r) => `<a class="trb" href="${r.trailer || ytSearch(r.title, r.year)}" target="_blank" rel="noopener" aria-label="Watch the ${esc(r.title)} trailer on YouTube" title="Trailer on YouTube">${PLAY}</a>`;
@@ -724,7 +736,7 @@ async function showPerson(id, role) {
             <b>${esc(r.title)}</b><span class="tag">${typeLabel(r.type)}${r.year ? " · " + r.year : ""}</span>
             ${r.role ? `<span class="role">${j.role === "actor" ? "as " : ""}${esc(r.role)}</span>` : ""}
             ${ratingBadges(r.ratings)}
-            ${onLine(r.streamOn)}
+            ${onLine(r.streamOn, r.theatres)}
           </span>
         </button></li>`).join("")}</ol>` : `<div class="empty"><b>No titles found</b>TMDB has no rated work listed for this role.</div>`;
       plainRates($("plist"));
@@ -769,9 +781,11 @@ async function showPerson(id, role) {
 
 /* ============ title page ============ */
 const PILL = { included: "Included", free: "Free", addon: "Add-on needed", paid: "Pay extra" };
+const TICKET_V = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M13 6v2M13 11v2M13 16v2"/></svg>`;
 const VICON = {
   included: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m8 12.5 3 3 5-6"/></svg>`,
   extra: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16.5v.5"/></svg>`,
+  theatre: TICKET_V,
   no: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 9 6 6M15 9l-6 6"/></svg>`,
 };
 function priceChip(kind, p) {
@@ -815,8 +829,8 @@ async function showTitle(type, id) {
       ${t.elsewhere.length ? `<section class="sec"><h3>Streaming outside India</h3><ul class="abroad">${t.elsewhere.map((e) =>
         `<li><b>${esc(e.country)}:</b> ${esc(e.apps.join(", "))}</li>`).join("")}</ul></section>` : ""}` : "";
     const makers = t.makers.map((p) => ({ ...p, role: t.makerLabel.replace(/s$/, ""), dept: "", photo: null }));
-    const people = (makers.length ? `<section class="sec"><h3>${esc(t.makerLabel)}</h3>${personButtons(makers)}</section>` : "")
-      + (t.cast.length ? `<section class="sec"><h3>Cast</h3>${personButtons(t.cast)}</section>` : "");
+    const people = (t.cast.length ? `<section class="sec"><h3>Cast</h3>${personButtons(t.cast)}</section>` : "")
+      + (makers.length ? `<section class="sec"><h3>${esc(t.makerLabel)}</h3>${personButtons(makers)}</section>` : "");
 
     showPage(`<div class="titlepage">${backBtn}
       ${t.backdrop ? `<div class="backdrop"><img class="fade" src="${t.backdrop}" alt=""></div>` : ""}
@@ -832,7 +846,11 @@ async function showTitle(type, id) {
         <a class="press primary" href="${t.trailer || ytSearch(t.title, t.year)}" target="_blank" rel="noopener">${PLAY}Watch trailer on YouTube</a>
         <button class="press" type="button" id="share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg>Share</button>
       </div>
-      <div class="verdict ${t.summary.kind}" role="status">${VICON[t.summary.kind]}<span>${esc(t.summary.text)}</span></div>
+      ${t.summary.kind === "theatre"
+        ? `<div class="verdict theatre" role="status">${VICON.theatre}<span>${esc(t.summary.text)}${t.theatres?.date ? `<small class="vsub">${t.theatres.status === "now" ? "Released" : "Releases"} ${esc(t.theatres.label.replace(/^.*(released |from )/, ""))}</small>` : ""}
+            ${t.theatres?.status === "now" ? `<a class="vbtn" href="${t.showtimes}" target="_blank" rel="noopener">Find showtimes <span aria-hidden="true">→</span></a>` : ""}</span></div>`
+        : `<div class="verdict ${t.summary.kind}" role="status">${VICON[t.summary.kind]}<span>${esc(t.summary.text)}</span></div>
+      ${t.theatres ? `<div class="cinema"><span>${TICKET}${esc(t.theatres.label)}</span>${t.theatres.status === "now" ? `<a href="${t.showtimes}" target="_blank" rel="noopener">Find showtimes <span aria-hidden="true">→</span></a>` : ""}</div>` : ""}`}
       ${t.apps.length ? `<section class="sec"><h3>Where to watch in India</h3>${offerCards(t.apps)}
         ${t.priceSource === "tmdb" && t.apps.some((a) => a.rent || a.buy) ? `<p class="status" style="font-size:.85rem;padding:8px 2px 0">Prices couldn't be loaded right now. Open the app to see the price.</p>` : ""}</section>` : ""}
       ${notIn}
@@ -893,7 +911,7 @@ async function showAsk(term) {
           <b>${esc(r.title)}</b><span class="tag">${typeLabel(r.type)}${r.year ? " · " + r.year : ""}</span>
           ${r.why ? `<span class="why">${esc(r.why)}</span>` : ""}
           ${ratingBadges(r.ratings)}
-          ${onLine(r.streamOn)}
+          ${onLine(r.streamOn, r.theatres)}
         </span>
       </button></li>`).join("");
     showPage(`<div class="resultspage">${backBtn}
@@ -1073,7 +1091,7 @@ function renderRecs() {
         <span class="ftitle">${esc(top.title)}</span>
         <span class="tag">${meta(top)}</span>
         ${ratingBadges(top.ratings)}
-        ${onLine(top.streamOn)}
+        ${onLine(top.streamOn, top.theatres)}
       </span>
     </button></div></div>
     <ol class="recs two reveal" start="2">${rest.map((r, i) => `<li class="has-tr" ${delay(i + 1)}>${trBtn(r)}
@@ -1083,7 +1101,7 @@ function renderRecs() {
         <span class="body">
           <b>${esc(r.title)}</b><span class="tag">${meta(r)}</span>
           ${ratingBadges(r.ratings)}
-          ${onLine(r.streamOn)}
+          ${onLine(r.streamOn, r.theatres)}
         </span>
       </button></li>`).join("")}</ol>`;
   plainRates(box); // rating links inside a button would nest interactive elements

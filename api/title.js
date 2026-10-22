@@ -3,6 +3,7 @@ import { ratingsFor } from "./_omdb.js";
 import { justwatchOffers } from "./_justwatch.js";
 import { groupByApp, verdict, classify } from "./_apps.js";
 import { trailerUrl } from "./_enrich.js";
+import { theatreStatus } from "./_theatres.js";
 
 const COUNTRY = new Intl.DisplayNames(["en"], { type: "region" });
 
@@ -84,7 +85,13 @@ export default async function handler(req, res) {
 
     // Trailer on YouTube, official ones first.
     const trailer = trailerUrl(d.videos?.results, title, rawDate.slice(0, 4));
-    const summary = verdict(apps);
+    const theatres = type === "movie" ? await theatreStatus(id, d.release_dates?.results) : null;
+    let summary = verdict(apps);
+    // Not on any app but showing in cinemas: say that first.
+    if (theatres?.status === "now" && (summary.kind === "no" || summary.kind === "extra"))
+      summary = { kind: "theatre", text: summary.kind === "no" ? "In theatres in India now. Not on any OTT app yet." : "In theatres in India now. On OTT only if you pay extra." };
+    else if (theatres?.status === "soon" && summary.kind === "no")
+      summary = { kind: "theatre", text: `${theatres.label}. Not on any OTT app yet.` };
     const availableInIndia = apps.length > 0;
 
     // Not in India: where it streams abroad.
@@ -105,9 +112,7 @@ export default async function handler(req, res) {
       const theatrical = inRel.find((r) => r.type === 3 || r.type === 2);
       const today = new Date();
       const rel = new Date(theatrical?.release_date || rawDate || 0);
-      if (rawDate && rel > today) releaseNote = `Not released yet. Releases ${rel.toDateString().slice(4)}.`;
-      else if (!availableInIndia && !digital && rawDate && today - rel < 1000 * 60 * 60 * 24 * 75)
-        releaseNote = "Released recently. It may still be in theatres and not on OTT yet.";
+      if (!theatres && rawDate && rel > today) releaseNote = `Not released yet. Releases ${rel.toDateString().slice(4)}.`;
     }
 
     send(
@@ -136,6 +141,8 @@ export default async function handler(req, res) {
         priceSource,
         elsewhere,
         releaseNote,
+        theatres,
+        showtimes: theatres ? `https://www.google.com/search?q=${encodeURIComponent(`${title} movie showtimes near me`)}` : null,
       },
       21600
     );

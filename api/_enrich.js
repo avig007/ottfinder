@@ -1,6 +1,7 @@
 // Shared by the home-page picks and AI search: adds ratings and the Indian apps that include a title.
 import { tmdb, img } from "./_tmdb.js";
 import { ratingsFor, combinedScore } from "./_omdb.js";
+import { theatreStatus } from "./_theatres.js";
 
 const dateOf = (r) => r.release_date || r.first_air_date || "";
 
@@ -14,7 +15,7 @@ export function trailerUrl(videos = [], title = "", year = "") {
 
 export async function enrich(type, r) {
   try {
-    const d = await tmdb(`/${type}/${r.id}`, { append_to_response: "external_ids,watch/providers,videos" });
+    const d = await tmdb(`/${type}/${r.id}`, { append_to_response: `external_ids,watch/providers,videos${type === "movie" ? ",release_dates" : ""}` });
     const ratings = await ratingsFor(d.imdb_id || d.external_ids?.imdb_id);
     const IN = d["watch/providers"]?.results?.IN || {};
     return {
@@ -32,6 +33,7 @@ export async function enrich(type, r) {
         .filter((n) => !/channel/i.test(n))
         .map((n) => n.replace(/\s+with ads$/i, "").replace(/^Amazon Prime Video$/, "Prime Video")))].slice(0, 2),
       trailer: trailerUrl(d.videos?.results, d.title || d.name, dateOf(d).slice(0, 4)),
+      theatres: type === "movie" ? (await theatreStatus(r.id, d.release_dates?.results))?.status || null : null,
       score: combinedScore(ratings, d.vote_average ?? r.vote_average),
     };
   } catch {
