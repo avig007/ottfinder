@@ -1,11 +1,41 @@
 import { tmdb, send } from "./_tmdb.js";
 import { enrich } from "./_enrich.js";
+import { aiConfigured, withFallback, chatCompletion } from "./_ai.js";
+
+// When an AI key is set, the AI picks the closest matches (it judges tone, story and style far better
+// than genre tags). Each pick is then checked against TMDB for ratings and where to watch.
+async function aiPicks(type, d) {
+  if (!aiConfigured()) return [];
+  const title = d.title || d.name, year = (d.release_date || d.first_air_date || "").slice(0, 4);
+  try {
+    const { list } = await withFallback(async (p) => {
+      const text = await chatCompletion(p, {
+        model: p.textModel(),
+        messages: [
+          { role: "system", content: "You recommend films and series. Reply with only a JSON array, no other text." },
+          { role: "user", content: `List the 10 ${type === "tv" ? "TV series" : "movies"} most similar to "${title}" (${year}) for someone who loved it: same tone, themes and style. Mix well-known and lesser-known picks, include Indian titles if they fit, and never include "${title}" itself. Format: [{"title":"exact official title","year":2014}]` },
+        ],
+        ...(p.extra ? p.extra("json") : {}),
+      });
+      const m = String(text).match(/\[[\s\S]*\]/);
+      return { list: m ? JSON.parse(m[0]) : [] };
+    });
+    const hits = await Promise.all(list.slice(0, 10).map(async (x) => {
+      const r = await tmdb(`/search/${type}`, { query: String(x.title || ""), [type === "movie" ? "year" : "first_air_date_year"]: x.year || undefined, include_adult: "false" }).catch(() => ({}));
+      return r.results?.[0] || null;
+    }));
+    return hits.filter((h) => h && h.id !== d.id);
+  } catch {
+    return []; // AI unavailable or out of credit: TMDB signals still work
+  }
+}
 
 // GET /api/similar?type=movie|tv&id=123
 // "More like this" from three TMDB signals, ranked together:
 //   1. recommendations: what people who liked this also liked (strongest)
 //   2. titles sharing its themes (keywords) and main genre, well known and well rated
 //   3. "similar": shared genres and keywords (weakest, used to top up)
+// plus, when an AI key is set, the AI's picks, which rank first.
 // Then ratings and where to watch in India for the best 12.
 export default async function handler(req, res) {
   const type = req.query.type === "tv" ? "tv" : "movie";
@@ -37,6 +67,7 @@ export default async function handler(req, res) {
       const cur = score.get(r.id);
       score.set(r.id, { r, s: (cur?.s || 0) + s }); // found by more than one signal = stronger match
     });
+    add(await aiPicks(type, d), 6, 0.15);
     add(d.recommendations?.results || [], 3, 0.1);
     add(themed, 2.2, 0.08);
     add(d.similar?.results || [], 1, 0.05);
